@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#131a16">
   <meta name="description" content="Spill FunRun med vennene dine.">
   <title>FunRun — spillbeta</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; min-height: 100%; }
@@ -210,6 +211,15 @@
       border-radius: 0;
     }
     #funrun-demo-copy .hm-live-map svg { width: 100%; height: 100%; }
+    #funrun-demo-copy .hm-live-gps-map { display: none; position: absolute; inset: 0; z-index: 0; background: #e5e9e4; }
+    #funrun-demo-copy .hm-live-map.hm-gps-active > svg { display: none; }
+    #funrun-demo-copy .hm-live-map.hm-gps-active .hm-live-gps-map { display: block; }
+    #funrun-demo-copy .hm-live-map.hm-gps-active .hm-map-legend { display: none; }
+    #funrun-demo-copy .hm-gps-icon { border: 0; background: transparent; }
+    #funrun-demo-copy .hm-gps-dot { display: block; width: 20px; height: 20px; border: 3px solid #fff; border-radius: 50%; background: #1685f8; box-shadow: 0 0 0 5px rgb(22 133 248 / 24%), 0 2px 8px rgb(0 0 0 / 40%); }
+    #funrun-demo-copy .hm-gps-tooltip { border: 0; border-radius: 8px; background: #17231b; color: #fff; box-shadow: 0 2px 8px rgb(0 0 0 / 20%); font: 600 12px/1.2 system-ui, sans-serif; }
+    #funrun-demo-copy .hm-gps-tooltip::before { border-top-color: #17231b; }
+    #funrun-demo-copy .hm-gps-status { margin: 0; }
     #funrun-demo-copy .hm-live-clock {
       position: absolute;
       z-index: 2;
@@ -408,7 +418,7 @@
             <p class="hm-live-status" id="hm-home-status" aria-live="polite"></p>
           </div>
         </div>
-        <p class="hm-note">Demoen bruker eksempeldata. Den henter ikke GPS-posisjonen din.</p>
+        <p class="hm-note">I betaen kan du vise din egen GPS-posisjon på kartet. Den deles ikke med andre spillere.</p>
       </section>
 
       <section class="hm-page" data-page="how" hidden>
@@ -670,6 +680,7 @@
 
       <section class="hm-page" data-page="live" hidden>
         <div class="hm-map hm-live-map">
+          <div id="hm-live-gps-map" class="hm-live-gps-map" aria-label="Veikart med din GPS-posisjon"></div>
           <div class="hm-live-clock" aria-label="Rundetid">
             <div class="hm-kicker">Runde igjen</div>
             <div class="hm-clock" id="hm-round-clock">30:00</div>
@@ -723,6 +734,9 @@
           <div class="hm-map-legend" aria-label="Kartforklaring"><span><i class="hm-legend-swatch is-forest" aria-hidden="true"></i>Skog</span><span><i class="hm-legend-swatch is-building" aria-hidden="true"></i>Bygninger</span><span><i class="hm-legend-swatch is-water" aria-hidden="true"></i>Vann</span><span class="hm-checkpoint-legend" hidden><i class="hm-legend-swatch is-control" aria-hidden="true"></i>Kontrollsone</span></div>
         </div>
         <div class="hm-live-bottom">
+          <div id="hm-gps-status" class="hm-alert hm-gps-status" role="status" aria-live="polite">GPS er av. Start den for å vise posisjonen din på kartet. Den vises bare på denne enheten.</div>
+          <button class="hm-button hm-wide" type="button" data-action="gps-toggle" id="hm-gps-toggle">Start GPS</button>
+          <p class="hm-note">Kartbildene lastes fra OpenStreetMap for området som vises. GPS-punktet deles ikke med andre i denne demoen.</p>
           <div id="hm-checkpoint-progress" class="hm-alert" role="status" aria-live="polite" hidden></div>
           <button class="hm-button hm-wide" type="button" data-action="simulate-checkpoint" id="hm-checkpoint-trigger" hidden>Simuler nådd kontrollsone</button>
           <button class="hm-button hm-primary hm-wide" type="button" data-action="tag">Jeg har tatt noen</button>
@@ -764,6 +778,7 @@
     </nav>
   </section>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
     (() => {
       const root = document.getElementById("funrun-demo-copy");
@@ -785,6 +800,10 @@
       let demoTicker = null;
       let roundSecondsRemaining = 0;
       let demoStep = 0;
+      let gpsWatchId = null;
+      let gpsMap = null;
+      let gpsMarker = null;
+      let gpsAccuracy = null;
       try {
         const saved = window.openai && window.openai.widgetState && window.openai.widgetState.privateContent;
         if (saved && saved.app === "funrun-full-demo-home-v3") state = { ...defaults, ...saved.ui };
@@ -796,6 +815,58 @@
             window.openai.setWidgetState({ privateContent: { app: "funrun-full-demo-home-v3", ui: state } }).catch(() => {});
           }
         } catch (_) {}
+      };
+      const gpsStatus = message => { root.querySelector("#hm-gps-status").textContent = message; };
+      const stopGps = (message = "GPS er stoppet. Posisjonen deles ikke med andre i denne demoen.") => {
+        if (gpsWatchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(gpsWatchId);
+        gpsWatchId = null;
+        if (gpsMap) { gpsMap.remove(); gpsMap = null; gpsMarker = null; gpsAccuracy = null; }
+        root.querySelector(".hm-live-map").classList.remove("hm-gps-active");
+        root.querySelector("#hm-gps-toggle").textContent = "Start GPS";
+        gpsStatus(message);
+      };
+      const gpsError = error => {
+        if (error.code === 1) {
+          stopGps("GPS-tilgang ble avslått. Tillat posisjon i nettleseren og trykk Start GPS igjen.");
+        } else if (error.code === 2) {
+          gpsStatus("Finner ikke GPS akkurat nå. Sjekk at posisjon er slått på, og prøv igjen.");
+        } else if (error.code === 3) {
+          gpsStatus("GPS bruker lang tid. Hold telefonen ute med fri sikt mot himmelen og prøv igjen.");
+        } else {
+          gpsStatus("GPS kunne ikke startes. Sjekk nettleserens posisjonstilgang og prøv igjen.");
+        }
+      };
+      const startGps = () => {
+        if (!navigator.geolocation) { gpsStatus("Denne nettleseren støtter ikke GPS-posisjon."); return; }
+        if (!window.L) { gpsStatus("Kartet kunne ikke lastes. Sjekk internettforbindelsen og prøv igjen."); return; }
+        gpsStatus("Venter på GPS. Velg Tillat i nettleseren når den spør om posisjon.");
+        root.querySelector("#hm-gps-toggle").textContent = "Stopp GPS";
+        gpsWatchId = navigator.geolocation.watchPosition(position => {
+          const { latitude, longitude, accuracy } = position.coords;
+          const point = [latitude, longitude];
+          const mapElement = root.querySelector("#hm-live-gps-map");
+          root.querySelector(".hm-live-map").classList.add("hm-gps-active");
+          if (!gpsMap) {
+            gpsMap = window.L.map(mapElement, { zoomControl: false, attributionControl: true }).setView(point, 17);
+            window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              maxZoom: 19,
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(gpsMap);
+            window.L.control.zoom({ position: "bottomright" }).addTo(gpsMap);
+            gpsMarker = window.L.marker(point, {
+              icon: window.L.divIcon({ className: "hm-gps-icon", html: '<span class="hm-gps-dot"></span>', iconSize: [20, 20], iconAnchor: [10, 10] }),
+              title: "Din posisjon"
+            }).addTo(gpsMap).bindTooltip("Du", { permanent: true, direction: "top", offset: [0, -9], className: "hm-gps-tooltip" });
+            gpsAccuracy = window.L.circle(point, { radius: accuracy, color: "#1685f8", weight: 1, fillColor: "#1685f8", fillOpacity: 0.12 }).addTo(gpsMap);
+            window.requestAnimationFrame(() => gpsMap && gpsMap.invalidateSize());
+          } else {
+            gpsMarker.setLatLng(point);
+            gpsAccuracy.setLatLng(point).setRadius(accuracy);
+            if (!gpsMap.getBounds().pad(-0.15).contains(point)) gpsMap.panTo(point, { animate: true });
+          }
+          const quality = accuracy <= 20 ? "god" : accuracy <= 60 ? "middels" : "svak";
+          gpsStatus("GPS aktiv · " + quality + " nøyaktighet (ca. " + Math.round(accuracy) + " m). Bare denne telefonen ser posisjonen.");
+        }, gpsError, { enableHighAccuracy: true, maximumAge: 2000, timeout: 20000 });
       };
       const screenNames = ["home", "how", "lobby", "settings", "map", "rules", "live", "results"];
       const modeLabels = { tag: "Sisten", infection: "Infection", catch: "Catch", checkpoints: "Kontrollpunkter" };
@@ -1056,6 +1127,7 @@
       };
       const setScreen = screen => {
         if (!screenNames.includes(screen)) return;
+        if (screen !== "live" && gpsWatchId !== null) stopGps();
         state.screen = screen;
         if (screen !== "map") { state.placingPackage = false; state.placingCheckpoints = false; state.editingZone = false; }
         if (screen === "live") state.packageResult = null;
@@ -1113,7 +1185,7 @@
             writeViewBox();
           };
           map.addEventListener("pointerdown", event => {
-            if (event.target.closest("button")) return;
+            if (map.classList.contains("hm-gps-active") || event.target.closest("button, .leaflet-container")) return;
             const point = { x: event.clientX, y: event.clientY };
             state.pointers.set(event.pointerId, point);
             if (state.pointers.size === 1) {
@@ -1170,6 +1242,7 @@
           map.addEventListener("pointerup", finishPointer);
           map.addEventListener("pointercancel", finishPointer);
           map.addEventListener("wheel", event => {
+            if (map.classList.contains("hm-gps-active")) return;
             event.preventDefault();
             const factor = event.deltaY < 0 ? 1.12 : 1 / 1.12;
             zoomAt(state.zoom * factor, event.clientX, event.clientY);
@@ -1229,6 +1302,11 @@
         const actionButton = event.target.closest("[data-action]");
         if (!actionButton) return;
         const action = actionButton.dataset.action;
+        if (action === "gps-toggle") {
+          if (gpsWatchId !== null) stopGps();
+          else startGps();
+          return;
+        }
         if (action === "create") setScreen("lobby");
         if (action === "join") {
           const code = root.querySelector("#hm-join-code").value.trim();
@@ -1350,3 +1428,4 @@
 
 </body>
 </html>
+
