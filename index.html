@@ -194,7 +194,7 @@
       touch-action: auto;
     }
     #funrun-demo-copy .hm-map:not(#hm-map) { touch-action: none; }
-    #funrun-demo-copy .hm-map svg { display: block; width: 100%; height: auto; }
+    #funrun-demo-copy .hm-map > svg { display: block; width: 100%; height: auto; }
     #funrun-demo-copy .hm-picker-map { width: 100%; height: 330px; background: #e8ece8; touch-action: pan-x pan-y; }
     #funrun-demo-copy .hm-place-search { display: grid; gap: 7px; margin: 0 0 14px; }
     #funrun-demo-copy .hm-place-search-row { display: flex; gap: 8px; }
@@ -915,9 +915,7 @@
           } else if (state.perks && state.placingPackage) {
             if (state.mapPackages.length < 8) state.mapPackages.push(point);
           } else {
-            state.mapLat = point.lat;
-            state.mapLng = point.lng;
-            state.mapPlaceName = "Valgt punkt i Norge";
+            moveMapLocation(point.lat, point.lng, "Valgt punkt i Norge");
             root.querySelector("#hm-place-search-status").textContent = "Kartpunkt valgt. Du kan også søke på et stedsnavn.";
           }
           update();
@@ -938,10 +936,18 @@
           list.appendChild(button);
         });
       };
+      const moveMapLocation = (lat, lng, label) => {
+        const deltaLat = lat - Number(state.mapLat || lat);
+        const deltaLng = lng - Number(state.mapLng || lng);
+        ["mapZonePoints", "mapCheckpoints", "mapPackages"].forEach(key => {
+          if (Array.isArray(state[key])) state[key] = state[key].map(point => ({ lat: Number(point.lat) + deltaLat, lng: Number(point.lng) + deltaLng }));
+        });
+        state.mapPlaceName = label;
+        state.mapLat = lat;
+        state.mapLng = lng;
+      };
       const chooseNorwegianPlace = place => {
-        state.mapPlaceName = place.label;
-        state.mapLat = place.lat;
-        state.mapLng = place.lng;
+        moveMapLocation(place.lat, place.lng, place.label);
         root.querySelector("#hm-place-search-input").value = place.label;
         root.querySelector("#hm-place-search-status").textContent = "Kartet viser " + place.label + ".";
         placeSearchResults = [];
