@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#131a16">
+  <meta name="description" content="Spill FunRun med vennene dine.">
+  <title>FunRun — spillbeta</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 28px 16px; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: radial-gradient(ellipse at 50% 0%, #26382c, #111813 70%); }
+    @media (min-width: 700px) { body { align-items: center; } }
+    @media (max-width: 480px) { body { min-height: 100svh; padding: 0; background: #131a16; } #funrun-demo-copy .hm-phone { width: 100%; min-height: 100svh; border: 0; border-radius: 0; box-shadow: none; } }
+  </style>
+</head>
+<body>
+<div id="funrun-demo-copy" class="viz-dotted-background">
+  <style>
+    #funrun-demo-copy {
+      --hm-bg: light-dark(#f4f5ef, #131a16);
+      --hm-surface: light-dark(#fffefa, #1d2821);
+      --hm-raised: light-dark(#f0f4ed, #26332a);
+      --hm-text: light-dark(#1d2b22, #f0f5ef);
+      --hm-muted: light-dark(#637267, #a6b4a9);
+      --hm-line: light-dark(#dce5dc, #37463b);
+      --hm-green: light-dark(#286b48, #83d4a0);
+      --hm-green-ink: light-dark(#ffffff, #122018);
+      --hm-green-soft: light-dark(#e7f3e9, #263d2d);
+      --hm-orange: light-dark(#ae642f, #f0ab73);
+      --hm-orange-soft: light-dark(#fff0df, #422c20);
+      --hm-red: light-dark(#b7463b, #ff9689);
+      --hm-map: light-dark(#dfe8d6, #293a30);
+      --hm-park: light-dark(#c9d9bf, #324a38);
+      --hm-forest: light-dark(#6f9a66, #285a38);
+      --hm-forest-deep: light-dark(#47734c, #18462d);
+      --hm-water: light-dark(#79bde1, #16618f);
+      --hm-water-line: light-dark(#d7f1ff, #80d2f3);
+      --hm-control: light-dark(#7654a7, #bba0ef);
+      --hm-control-ink: light-dark(#ffffff, #1b1128);
+      --hm-road-edge: light-dark(#b9b9a9, #626b5d);
+      --hm-road: light-dark(#fffdf5, #c7cbbb);
+      --hm-building: light-dark(#e5bd7f, #d9a568);
+      --hm-building-edge: light-dark(#8c6335, #69451f);
+      color-scheme: light dark;
+      color: var(--hm-text);
+      font: 400 15px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 14px;
+    }
+    #funrun-demo-copy * { box-sizing: border-box; }
+    #funrun-demo-copy .hm-phone {
+      width: min(100%, 440px);
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid var(--hm-line);
+      border-radius: 30px;
+      background: var(--hm-bg);
+      box-shadow: 0 18px 55px color-mix(in oklab, var(--hm-text) 12%, transparent);
+    }
+    #funrun-demo-copy .hm-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px 12px;
+    }
+    #funrun-demo-copy .hm-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+    #funrun-demo-copy .hm-brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--hm-green);
+      color: var(--hm-green-ink);
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    #funrun-demo-copy .hm-beta {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--hm-green-soft);
+      color: var(--hm-green);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    #funrun-demo-copy .hm-content { padding: 8px 20px 22px; }
+    #funrun-demo-copy h1, #funrun-demo-copy h2, #funrun-demo-copy h3, #funrun-demo-copy p { margin-top: 0; }
+    #funrun-demo-copy h1 { margin-bottom: 6px; font-size: 25px; line-height: 1.15; font-weight: 500; }
+    #funrun-demo-copy h2 { margin-bottom: 12px; font-size: 19px; line-height: 1.25; font-weight: 500; }
+    #funrun-demo-copy h3 { margin-bottom: 8px; font-size: 15px; font-weight: 500; }
+    #funrun-demo-copy .hm-sub { margin-bottom: 18px; color: var(--hm-muted); }
+    #funrun-demo-copy .hm-kicker {
+      margin-bottom: 7px;
+      color: var(--hm-muted);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    #funrun-demo-copy .hm-button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 15px;
+      border: 1px solid var(--hm-line);
+      border-radius: 14px;
+      background: var(--hm-surface);
+      color: var(--hm-text);
+      font: inherit;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+    }
+    #funrun-demo-copy .hm-button:hover { background: var(--hm-raised); }
+    #funrun-demo-copy .hm-primary {
+      border-color: var(--hm-green);
+      background: var(--hm-green);
+      color: var(--hm-green-ink);
+    }
+    #funrun-demo-copy .hm-primary:hover { filter: brightness(.97); }
+    #funrun-demo-copy .hm-wide { width: 100%; }
+    #funrun-demo-copy .hm-quiet { background: transparent; }
+    #funrun-demo-copy .hm-small { min-height: 38px; padding: 7px 11px; border-radius: 12px; font-size: 14px; }
+    #funrun-demo-copy .hm-stack { display: grid; gap: 12px; }
+    #funrun-demo-copy .hm-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #funrun-demo-copy .hm-code {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      border: 1px solid var(--hm-line);
+      border-radius: 17px;
+      background: var(--hm-surface);
+    }
+    #funrun-demo-copy .hm-code-value {
+      font-size: 21px;
+      font-weight: 500;
+      letter-spacing: .08em;
+    }
+    #funrun-demo-copy .hm-muted { color: var(--hm-muted); }
+    #funrun-demo-copy .hm-divider { height: 1px; margin: 17px 0; background: var(--hm-line); }
+    #funrun-demo-copy .hm-players { display: grid; gap: 2px; }
+    #funrun-demo-copy .hm-player {
+      display: flex;
+      min-height: 48px;
+      align-items: center;
+      gap: 11px;
+      border-bottom: 1px solid var(--hm-line);
+    }
+    #funrun-demo-copy .hm-player:last-child { border-bottom: 0; }
+    #funrun-demo-copy .hm-avatar {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      flex: none;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--hm-green-soft);
+      color: var(--hm-green);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    #funrun-demo-copy .hm-player-name { flex: 1; }
+    #funrun-demo-copy .hm-tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--hm-raised);
+      color: var(--hm-muted);
+      font-size: 12px;
+    }
+    #funrun-demo-copy .hm-tag.is-hunter { background: var(--hm-orange-soft); color: var(--hm-orange); }
+    #funrun-demo-copy .hm-map {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--hm-line);
+      border-radius: 18px;
+      background: var(--hm-map);
+      touch-action: none;
+    }
+    #funrun-demo-copy .hm-map svg { display: block; width: 100%; height: auto; }
+    #funrun-demo-copy .hm-map-legend { position: absolute; z-index: 2; left: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 5px; max-width: calc(100% - 16px); padding: 6px 7px; border: 1px solid color-mix(in oklab, var(--hm-line) 75%, transparent); border-radius: 12px; background: color-mix(in oklab, var(--hm-surface) 94%, transparent); box-shadow: 0 3px 10px color-mix(in oklab, var(--hm-text) 12%, transparent); pointer-events: none; }
+    #funrun-demo-copy .hm-map-legend span { display: inline-flex; align-items: center; gap: 4px; color: var(--hm-text); font-size: 10px; line-height: 1.2; white-space: nowrap; }
+    #funrun-demo-copy .hm-legend-swatch { width: 10px; height: 10px; border: 1px solid color-mix(in oklab, var(--hm-text) 24%, transparent); border-radius: 3px; }
+    #funrun-demo-copy .hm-legend-swatch.is-forest { background: var(--hm-forest); }
+    #funrun-demo-copy .hm-legend-swatch.is-building { background: var(--hm-building); }
+    #funrun-demo-copy .hm-legend-swatch.is-water { background: var(--hm-water); }
+    #funrun-demo-copy .hm-legend-swatch.is-control { background: var(--hm-control); }
+    #funrun-demo-copy .hm-map text.hm-checkpoint-number { fill: var(--hm-control-ink); stroke: none; }
+    #funrun-demo-copy .hm-phone.hm-in-game .hm-top,
+    #funrun-demo-copy .hm-phone.hm-in-game .hm-nav { display: none; }
+    #funrun-demo-copy .hm-phone.hm-in-game .hm-content { padding: 0; }
+    #funrun-demo-copy .hm-live-map {
+      aspect-ratio: 360 / 470;
+      border: 0;
+      border-radius: 0;
+    }
+    #funrun-demo-copy .hm-live-map svg { width: 100%; height: 100%; }
+    #funrun-demo-copy .hm-live-clock {
+      position: absolute;
+      z-index: 2;
+      top: 14px;
+      right: 14px;
+      padding: 9px 12px;
+      border-radius: 15px;
+      background: var(--hm-surface);
+      box-shadow: 0 4px 14px color-mix(in oklab, var(--hm-text) 14%, transparent);
+      text-align: right;
+    }
+    #funrun-demo-copy .hm-live-clock .hm-kicker { margin-bottom: 0; font-size: 11px; }
+    #funrun-demo-copy .hm-live-toast { position: absolute; z-index: 2; top: 14px; left: 14px; max-width: calc(100% - 170px); padding: 9px 11px; border: 1px solid var(--hm-line); border-radius: 13px; background: color-mix(in oklab, var(--hm-surface) 94%, transparent); box-shadow: 0 4px 14px color-mix(in oklab, var(--hm-text) 12%, transparent); color: var(--hm-text); font-size: 11px; }
+    #funrun-demo-copy .hm-clock { font-size: 23px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    #funrun-demo-copy .hm-headstart-clock { color: var(--hm-orange); font-size: 13px; font-variant-numeric: tabular-nums; }
+    #funrun-demo-copy .hm-pip-time { margin-top: 2px; color: var(--hm-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    #funrun-demo-copy .hm-pip-time[data-state="reveal"] { color: var(--hm-orange); font-weight: 500; }
+    #funrun-demo-copy .hm-live-bottom { display: grid; gap: 8px; padding: 12px 16px 16px; }
+    #funrun-demo-copy .hm-map-caption {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px 11px;
+      background: var(--hm-surface);
+      color: var(--hm-muted);
+      font-size: 12px;
+    }
+    #funrun-demo-copy .hm-map .hm-name { display: initial; }
+    #funrun-demo-copy .hm-map.hm-dots .hm-name { display: none; }
+    #funrun-demo-copy .hm-map .hm-approx-mark { display: none; }
+    #funrun-demo-copy .hm-map.hm-approx .hm-exact-mark { display: none; }
+    #funrun-demo-copy .hm-map.hm-approx .hm-approx-mark { display: initial; }
+    #funrun-demo-copy .hm-map text {
+      fill: var(--hm-text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      paint-order: stroke;
+      stroke: var(--hm-map);
+      stroke-width: 3px;
+      stroke-linejoin: round;
+    }
+    #funrun-demo-copy .hm-form { display: grid; gap: 15px; }
+    #funrun-demo-copy .hm-field { display: grid; gap: 7px; }
+    #funrun-demo-copy .hm-label { font-weight: 500; }
+    #funrun-demo-copy .hm-help { margin: -3px 0 0; color: var(--hm-muted); font-size: 13px; }
+    #funrun-demo-copy .hm-input, #funrun-demo-copy .hm-select {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid var(--hm-line);
+      border-radius: 13px;
+      background: var(--hm-surface);
+      color: var(--hm-text);
+      font: inherit;
+    }
+    #funrun-demo-copy input[type="number"] { font-variant-numeric: tabular-nums; }
+    #funrun-demo-copy .hm-inline-input { display: flex; align-items: center; gap: 9px; }
+    #funrun-demo-copy .hm-inline-input .hm-input { max-width: 125px; }
+    #funrun-demo-copy .hm-choice-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    #funrun-demo-copy .hm-choice {
+      min-height: 42px;
+      padding: 8px 12px;
+      border: 1px solid var(--hm-line);
+      border-radius: 13px;
+      background: var(--hm-surface);
+      color: var(--hm-text);
+      font: inherit;
+      cursor: pointer;
+    }
+    #funrun-demo-copy .hm-choice[aria-pressed="true"] {
+      border-color: var(--hm-green);
+      background: var(--hm-green-soft);
+      color: var(--hm-green);
+      font-weight: 500;
+    }
+    #funrun-demo-copy .hm-switch-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+    #funrun-demo-copy .hm-switch-row input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--hm-green); }
+    #funrun-demo-copy .hm-setting {
+      display: grid;
+      gap: 8px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--hm-line);
+    }
+    #funrun-demo-copy .hm-setting:last-child { border-bottom: 0; }
+    #funrun-demo-copy .hm-warning {
+      padding: 12px 13px;
+      border-radius: 14px;
+      background: var(--hm-orange-soft);
+      color: var(--hm-orange);
+      font-weight: 500;
+    }
+    #funrun-demo-copy .hm-alert {
+      margin: 10px 0 0;
+      padding: 11px 13px;
+      border-left: 3px solid var(--hm-orange);
+      border-radius: 8px 13px 13px 8px;
+      background: var(--hm-orange-soft);
+      color: var(--hm-text);
+    }
+    #funrun-demo-copy .hm-rules { display: grid; gap: 11px; padding: 0; margin: 0 0 20px; list-style: none; }
+    #funrun-demo-copy .hm-rules li { display: flex; align-items: flex-start; gap: 10px; }
+    #funrun-demo-copy .hm-rule-number {
+      display: grid;
+      width: 26px;
+      height: 26px;
+      flex: none;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--hm-green-soft);
+      color: var(--hm-green);
+      font-size: 12px;
+      font-weight: 500;
+    }
+    #funrun-demo-copy .hm-checkline { display: flex; align-items: flex-start; gap: 10px; margin: 14px 0; }
+    #funrun-demo-copy .hm-checkline input { width: 20px; height: 20px; flex: none; accent-color: var(--hm-green); }
+    #funrun-demo-copy .hm-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 15px 0;
+    }
+    #funrun-demo-copy .hm-stat {
+      padding: 13px;
+      border-radius: 15px;
+      background: var(--hm-surface);
+    }
+    #funrun-demo-copy .hm-stat-value { display: block; font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    #funrun-demo-copy .hm-stat-label { color: var(--hm-muted); font-size: 13px; }
+    #funrun-demo-copy .hm-event {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--hm-line);
+    }
+    #funrun-demo-copy .hm-event:last-child { border-bottom: 0; }
+    #funrun-demo-copy .hm-event-dot { width: 9px; height: 9px; flex: none; margin-top: 6px; border-radius: 50%; background: var(--hm-orange); }
+    #funrun-demo-copy .hm-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+      padding: 9px 9px 12px;
+      border-top: 1px solid var(--hm-line);
+      background: var(--hm-surface);
+    }
+    #funrun-demo-copy .hm-tab {
+      display: grid;
+      min-height: 48px;
+      place-items: center;
+      gap: 1px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--hm-muted);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    #funrun-demo-copy .hm-tab[aria-current="page"] { background: var(--hm-green-soft); color: var(--hm-green); font-weight: 500; }
+    #funrun-demo-copy .hm-tab-icon { font-size: 17px; line-height: 1; }
+    #funrun-demo-copy .hm-note { color: var(--hm-muted); font-size: 12px; }
+    #funrun-demo-copy [hidden] { display: none !important; }
+    @media (max-width: 360px) {
+      #funrun-demo-copy { padding: 4px; }
+      #funrun-demo-copy .hm-phone { border-radius: 22px; }
+      #funrun-demo-copy .hm-content { padding-right: 15px; padding-left: 15px; }
+      #funrun-demo-copy .hm-top { padding-right: 15px; padding-left: 15px; }
+    }
+  </style>
+
+  <section class="hm-phone" aria-label="FunRun demo">
+    <header class="hm-top">
+      <div class="hm-brand"><span class="hm-brand-mark" aria-hidden="true">↗</span><span>FunRun</span></div>
+      <span class="hm-beta">DEMO</span>
+    </header>
+
+    <main class="hm-content">
+      <section class="hm-page" data-page="home">
+        <p class="hm-kicker">Gjerpen · lek ute</p>
+        <h1>En jakt. Mange gjemmesteder.</h1>
+        <p class="hm-sub">Lag en lobby med vennene dine, eller bli med i en runde med kode.</p>
+        <div class="hm-stack">
+          <button class="hm-button hm-primary hm-wide" type="button" data-action="create">Lag lobby</button>
+          <button class="hm-button hm-wide" type="button" data-screen="how">Slik spiller du</button>
+          <div class="hm-field">
+            <label class="hm-label" for="hm-join-code">Lobbykode</label>
+            <input class="hm-input" id="hm-join-code" type="text" maxlength="12" placeholder="Skriv inn kode" autocomplete="off">
+            <button class="hm-button hm-wide" type="button" data-action="join">Bli med</button>
+            <p class="hm-live-status" id="hm-home-status" aria-live="polite"></p>
+          </div>
+        </div>
+        <p class="hm-note">Demoen bruker eksempeldata. Den henter ikke GPS-posisjonen din.</p>
+      </section>
+
+      <section class="hm-page" data-page="how" hidden>
+        <p class="hm-kicker">FunRun · kort forklart</p>
+        <h1>Slik spiller dere</h1>
+        <p class="hm-sub">Lag en lobby sammen, velg regler og spill en trygg runde ute.</p>
+        <ol class="hm-rules">
+          <li><span class="hm-rule-number">1</span><span><strong>Lag eller bli med.</strong> Verten lager en lobby og deler koden. Resten skriver inn koden på startsiden.</span></li>
+          <li><span class="hm-rule-number">2</span><span><strong>Velg runden.</strong> Verten velger spilltype, tid, forsprang, hvor ofte jegeren ser spillerne og spilleområdet. Hvis dere slår på pakker, plasserer verten dem på kartet.</span></li>
+          <li><span class="hm-rule-number">3</span><span><strong>Les reglene.</strong> Alle må være enige om sonen og reglene før runden starter.</span></li>
+          <li><span class="hm-rule-number">4</span><span><strong>Ta på for å ta.</strong> Jegeren trykker «Jeg har tatt noen», og spilleren bekrefter i sin app.</span></li>
+          <li><span class="hm-rule-number">5</span><span><strong>Hold dere innenfor sonen.</strong> Følg varslene. I Catch blir man ute når man blir tatt; i Sisten blir den som er tatt, jeger.</span></li>
+        </ol>
+        <p class="hm-warning">Sist igjen vinner. I Infection blir de som blir tatt, med på jegerlaget.</p>
+        <div class="hm-stack" style="margin-top:14px">
+          <button class="hm-button hm-primary hm-wide" type="button" data-action="create">Lag lobby</button>
+          <button class="hm-button hm-wide" type="button" data-screen="home">Til startsiden</button>
+        </div>
+      </section>
+
+      <section class="hm-page" data-page="lobby" hidden>
+        <p class="hm-kicker">Vertens lobby</p>
+        <h1>Gjerpen kveld</h1>
+        <p class="hm-sub">Inviter venner med lobbykoden.</p>
+        <div class="hm-code">
+          <div><div class="hm-kicker">Lobbykode</div><div class="hm-code-value">GJER-482</div></div>
+          <button class="hm-button hm-small" type="button" data-action="share">Del kode</button>
+        </div>
+        <p class="hm-live-status" id="hm-share-status" aria-live="polite"></p>
+        <div class="hm-row" style="margin-top: 15px">
+          <h2 style="margin:0">Spillere</h2><span class="hm-muted">5 i lobbyen</span>
+        </div>
+        <div class="hm-players" aria-label="Spillere i lobbyen">
+          <div class="hm-player"><span class="hm-avatar">J</span><span class="hm-player-name">Jonas <span class="hm-muted">· vert</span></span><span class="hm-tag is-hunter">Jeger</span></div>
+          <div class="hm-player"><span class="hm-avatar">M</span><span class="hm-player-name">Mina</span><span class="hm-tag">Klar</span></div>
+          <div class="hm-player"><span class="hm-avatar">E</span><span class="hm-player-name">Emil</span><span class="hm-tag">Klar</span></div>
+          <div class="hm-player"><span class="hm-avatar">A</span><span class="hm-player-name">Aisha</span><span class="hm-tag">Klar</span></div>
+          <div class="hm-player"><span class="hm-avatar">L</span><span class="hm-player-name">Lukas</span><span class="hm-tag">Klar</span></div>
+        </div>
+        <div class="hm-divider"></div>
+        <div class="hm-row"><h3 style="margin:0">Rundeinnstillinger</h3><button class="hm-button hm-small hm-quiet" type="button" data-screen="settings">Rediger</button></div>
+        <p class="hm-sub" style="margin:8px 0 14px" id="hm-lobby-summary">Sisten · 30 min · Synlighet hvert 5. min</p>
+        <div class="hm-setting">
+          <label class="hm-switch-row">
+            <input id="hm-perks-enabled" type="checkbox">
+            <span><span class="hm-label">Pakker med fordeler og ulemper</span><br><span class="hm-help">Slå på for å plassere pakker på kartet. Spillerne åpner en pakke når de kommer fram.</span></span>
+          </label>
+          <div id="hm-perks-summary" class="hm-alert" role="status" aria-live="polite" hidden>Pakker er slått på. Legg dem ut på kartet før runden starter.</div>
+          <button class="hm-button hm-small" type="button" data-screen="map" id="hm-open-package-map" hidden>Plasser pakker på kartet</button>
+        </div>
+        <div class="hm-map" aria-label="Kartskisse over spilleområdet">
+          <svg viewBox="0 0 360 190" role="img" aria-label="Skjematisk kartskisse av Gjerpen med spilleområde">
+            <rect width="360" height="190" fill="var(--hm-map)"/>
+            <path d="M0 0h105l19 33-19 42-48 9L0 65zM245 122l54-15 61 28v55H248z" fill="var(--hm-park)"/>
+            <path d="M332 0h28v87l-36-8-12-30z" fill="var(--hm-water)"/>
+            <path d="M79 91c11-16 35-19 50-5l-4 31c-13 12-30 14-43 4z" fill="var(--hm-forest)" opacity=".8" aria-label="Skog inne i spilleområdet"/>
+            <g fill="var(--hm-forest-deep)" stroke="var(--hm-forest-deep)" stroke-width="1" aria-hidden="true"><path d="M82 113l7-14 7 14zM88 121v-8h2v8z"/><path d="M96 111l8-16 8 16zM102 120v-9h2v9z"/><path d="M108 116l7-14 7 14zM113 124v-8h2v8z"/></g>
+            <path d="M203 101c-18 8-8 20-22 27s-8 13-18 18" fill="none" stroke="var(--hm-water)" stroke-width="12" stroke-linecap="round" aria-label="Vann inne i spilleområdet"/>
+            <path d="M203 101c-18 8-8 20-22 27s-8 13-18 18" fill="none" stroke="var(--hm-water-line)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M-10 142C54 102 91 176 155 138S266 89 374 122" fill="none" stroke="var(--hm-road-edge)" stroke-width="18"/>
+            <path d="M-10 142C54 102 91 176 155 138S266 89 374 122" fill="none" stroke="var(--hm-road)" stroke-width="12"/>
+            <path d="M124-15c-6 56 26 72 17 119s-13 61 2 103" fill="none" stroke="var(--hm-road-edge)" stroke-width="15"/>
+            <path d="M124-15c-6 56 26 72 17 119s-13 61 2 103" fill="none" stroke="var(--hm-road)" stroke-width="10"/>
+            <path d="M285-15c-20 46-6 83 5 106s-11 62-39 114" fill="none" stroke="var(--hm-road-edge)" stroke-width="14"/>
+            <path d="M285-15c-20 46-6 83 5 106s-11 62-39 114" fill="none" stroke="var(--hm-road)" stroke-width="9"/>
+            <g fill="var(--hm-building)" opacity=".82" aria-label="Hus og bygninger">
+              <rect x="28" y="88" width="16" height="11" rx="2"/><rect x="48" y="82" width="18" height="12" rx="2"/>
+              <rect x="78" y="69" width="16" height="11" rx="2"/><rect x="98" y="73" width="18" height="12" rx="2"/>
+              <rect x="247" y="67" width="19" height="12" rx="2"/><rect x="270" y="73" width="16" height="11" rx="2"/>
+              <rect x="275" y="147" width="18" height="12" rx="2"/><rect x="296" y="153" width="17" height="11" rx="2"/>
+              <rect x="42" y="157" width="18" height="12" rx="2"/><rect x="64" y="165" width="16" height="11" rx="2"/>
+            </g>
+            <g fill="var(--hm-building)" stroke="var(--hm-building-edge)" stroke-width="2" aria-label="Bygninger inne i spilleområdet"><rect x="157" y="86" width="18" height="13" rx="2"/><rect x="180" y="91" width="17" height="12" rx="2"/><rect x="163" y="109" width="22" height="13" rx="2"/><path d="M163 91h7M186 96h6M169 114h9" fill="none" stroke="var(--hm-building-edge)" stroke-width="1.5"/></g>
+            <polygon id="hm-zone-lobby" points="" fill="color-mix(in oklab, var(--hm-green) 5%, transparent)" stroke="var(--hm-green)" stroke-width="2.5" stroke-dasharray="7 5" aria-label="Spilleområde"/><g id="hm-zone-lobby-points" aria-hidden="true" pointer-events="none"></g><g id="hm-checkpoint-lobby-layer" aria-label="Kontrollsoner"></g>
+            <circle cx="151" cy="70" r="5" fill="var(--hm-orange)"/><text x="160" y="74">Gjerpen skole</text>
+            <circle cx="220" cy="112" r="5" fill="var(--hm-orange)"/><text x="229" y="116">Gjerpen kirke</text>
+            <circle cx="115" cy="101" r="6" fill="var(--hm-red)" stroke="var(--hm-surface)" stroke-width="2"/>
+            <circle cx="192" cy="132" r="6" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/>
+            <circle cx="243" cy="85" r="6" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/>
+            <text x="17" y="177" style="font-size:11px">Spilleområde</text>
+          </svg>
+          <div class="hm-map-legend" aria-label="Kartforklaring"><span><i class="hm-legend-swatch is-forest" aria-hidden="true"></i>Skog</span><span><i class="hm-legend-swatch is-building" aria-hidden="true"></i>Bygninger</span><span><i class="hm-legend-swatch is-water" aria-hidden="true"></i>Vann</span><span class="hm-checkpoint-legend" hidden><i class="hm-legend-swatch is-control" aria-hidden="true"></i>Kontrollsone</span></div>
+          <div class="hm-map-caption"><span>Gjerpen · kartskisse</span><span>✦ 3.2 km²</span></div>
+        </div>
+        <button class="hm-button hm-primary hm-wide" style="margin-top:15px" type="button" data-action="start">Start runden</button>
+      </section>
+
+      <section class="hm-page" data-page="settings" hidden>
+        <p class="hm-kicker">Lobby · oppsett</p>
+        <h1>Tilpass runden</h1>
+        <p class="hm-sub">Verten bestemmer innstillingene før start.</p>
+        <div class="hm-form">
+          <div class="hm-field">
+            <span class="hm-label">Spilltype</span>
+            <div class="hm-choice-row" role="group" aria-label="Velg spilltype">
+              <button class="hm-choice" type="button" data-choice="mode" data-value="tag" aria-pressed="true">Sisten</button>
+              <button class="hm-choice" type="button" data-choice="mode" data-value="infection" aria-pressed="false">Infection</button>
+              <button class="hm-choice" type="button" data-choice="mode" data-value="catch" aria-pressed="false">Catch</button>
+              <button class="hm-choice" type="button" data-choice="mode" data-value="checkpoints" aria-pressed="false">Kontrollpunkter</button>
+            </div>
+            <p class="hm-help" id="hm-mode-help">Den som blir tatt, blir den nye jegeren.</p>
+          </div>
+          <div id="hm-checkpoint-settings" class="hm-setting" hidden>
+            <label class="hm-inline-input" for="hm-checkpoint-count"><span class="hm-label">Antall kontrollsoner</span><input class="hm-input" id="hm-checkpoint-count" type="number" min="1" max="10" step="1" value="3"><span class="hm-muted">maks 10</span></label>
+            <div class="hm-field"><span class="hm-label">Rekkefølge</span><div class="hm-choice-row" role="group" aria-label="Velg rekkefølge på kontrollsonene"><button class="hm-choice" type="button" data-choice="checkpointOrder" data-value="any" aria-pressed="true">Valgfri</button><button class="hm-choice" type="button" data-choice="checkpointOrder" data-value="ordered" aria-pressed="false">Bestemt</button></div></div>
+            <p class="hm-help">Plasser kontrollsonene fra Kart-fanen. De som blir jaget, må nå dem.</p>
+            <button class="hm-button hm-small" type="button" data-screen="map">Plasser kontrollsoner på kartet</button>
+          </div>
+          <label class="hm-field" for="hm-round-length">
+            <span class="hm-label">Rundens lengde</span>
+            <span class="hm-inline-input"><input class="hm-input" id="hm-round-length" type="number" min="1" step="1" value="30"><span class="hm-muted">minutter</span></span>
+          </label>
+          <div class="hm-setting">
+            <label class="hm-switch-row"><input id="hm-headstart" type="checkbox"><span><span class="hm-label">Forsprang</span><br><span class="hm-help">Jegeren teller mens de andre gjemmer seg.</span></span></label>
+            <label class="hm-inline-input" for="hm-headstart-seconds"><span class="hm-label">Egendefinert tid</span><input class="hm-input" id="hm-headstart-seconds" type="number" min="1" step="1" value="60"><span class="hm-muted">sek</span></label>
+          </div>
+          <label class="hm-field" for="hm-visibility">
+            <span class="hm-label">Hvor ofte jegeren ser spillerne</span>
+            <select class="hm-select" id="hm-visibility">
+              <option value="always">Alltid</option><option value="1">Hvert minutt</option>
+              <option value="5" selected>Hvert 5. minutt</option><option value="10">Hvert 10. minutt</option>
+              <option value="15">Hvert 15. minutt</option><option value="20">Hvert 20. minutt</option>
+              <option value="25">Hvert 25. minutt</option><option value="30">Hvert 30. minutt</option>
+              <option value="40">Hvert 40. minutt</option><option value="50">Hvert 50. minutt</option>
+              <option value="60">Hvert 60. minutt</option><option value="custom">Egendefinert</option>
+            </select>
+          </label>
+          <div class="hm-field" id="hm-custom-interval-wrap" hidden>
+            <label class="hm-label" for="hm-custom-interval">Egendefinert intervall</label>
+            <span class="hm-inline-input"><input class="hm-input" id="hm-custom-interval" type="number" min="1" step="1" value="7"><span class="hm-muted">minutter</span></span>
+          </div>
+          <label class="hm-field" for="hm-reveal-seconds">
+            <span class="hm-label">Hvor lenge visningen varer</span>
+            <span class="hm-inline-input"><input class="hm-input" id="hm-reveal-seconds" type="number" min="1" max="120" step="1" value="15"><span class="hm-muted">sekunder · maks 120</span></span>
+          </label>
+          <div class="hm-field">
+            <span class="hm-label">Hva vises på kartet?</span>
+            <div class="hm-choice-row" role="group" aria-label="Velg kartetiketter">
+              <button class="hm-choice" type="button" data-choice="labels" data-value="names" aria-pressed="true">Navn</button>
+              <button class="hm-choice" type="button" data-choice="labels" data-value="dots" aria-pressed="false">Bare prikker</button>
+            </div>
+          </div>
+          <div class="hm-field">
+            <span class="hm-label">Posisjon på kartet</span>
+            <div class="hm-choice-row" role="group" aria-label="Velg hvor nøyaktig posisjonen vises">
+              <button class="hm-choice" type="button" data-choice="precision" data-value="exact" aria-pressed="false">Nøyaktig</button>
+              <button class="hm-choice" type="button" data-choice="precision" data-value="approx" aria-pressed="true">Omtrent</button>
+            </div>
+          </div>
+          <div class="hm-field">
+            <span class="hm-label">Hvis noen er utenfor sonen i 10 sekunder</span>
+            <div class="hm-choice-row" role="group" aria-label="Velg konsekvens for spiller utenfor sonen">
+              <button class="hm-choice" type="button" data-choice="outside" data-value="out" aria-pressed="true">Blir ute</button>
+              <button class="hm-choice" type="button" data-choice="outside" data-value="hunter" aria-pressed="false">Blir jeger</button>
+            </div>
+          </div>
+          <div class="hm-warning">Alle får varsel når de nærmer seg eller går utenfor spilleområdet.</div>
+          <button class="hm-button hm-primary hm-wide" type="button" data-screen="lobby">Lagre innstillinger</button>
+        </div>
+      </section>
+
+      <section class="hm-page" data-page="map" hidden>
+        <p class="hm-kicker">Lobby · spilleområde</p>
+        <h1>Gjerpen</h1>
+        <p class="hm-sub">Tegn sonen dere skal holde dere innenfor. Trykk og dra kartet for å flytte det, eller bruk to fingre for å zoome.</p>
+        <div class="hm-stack" style="margin-bottom:12px">
+          <button class="hm-button hm-small" type="button" id="hm-start-zone-edit" data-action="start-zone-edit">Lag eget spilleområde</button>
+          <div id="hm-zone-controls" class="hm-stack" hidden>
+            <p id="hm-zone-status" class="hm-note" role="status" aria-live="polite"></p>
+            <div class="hm-choice-row">
+              <button class="hm-button hm-small" type="button" data-action="undo-zone-point" id="hm-undo-zone-point">Angre siste punkt</button>
+              <button class="hm-button hm-small" type="button" data-action="clear-zone" id="hm-clear-zone">Tøm markering</button>
+              <button class="hm-button hm-small" type="button" data-action="close-zone" id="hm-close-zone">Lukk område</button>
+              <button class="hm-button hm-primary hm-small" type="button" data-action="save-zone" id="hm-save-zone">Lagre område</button>
+            </div>
+          </div>
+        </div>
+        <div id="hm-checkpoint-map-tools" class="hm-stack" style="margin-bottom:10px" hidden>
+          <div class="hm-row"><span class="hm-note" id="hm-checkpoint-count-label" aria-live="polite">3 av 3 kontrollsoner plassert</span><button class="hm-button hm-small" type="button" id="hm-place-checkpoints" data-action="start-checkpoint-placement">Plasser kontrollsoner</button></div>
+          <p class="hm-note" id="hm-checkpoint-map-status" role="status" aria-live="polite" hidden>Trykk på kartet for å plassere sonene. Maks 10.</p>
+          <div id="hm-checkpoint-edit-actions" class="hm-choice-row" hidden><button class="hm-button hm-small" type="button" data-action="undo-checkpoint">Angre siste</button><button class="hm-button hm-small" type="button" data-action="clear-checkpoints">Tøm kontrollsoner</button><button class="hm-button hm-primary hm-small" type="button" data-action="finish-checkpoint-placement">Ferdig</button></div>
+        </div>
+        <p class="hm-note" id="hm-package-off-note">Pakker er av i denne lobbyen. Slå dem på i Lobby for å plassere dem.</p>
+        <div id="hm-package-tools" class="hm-stack" style="margin-bottom:10px" hidden>
+          <div class="hm-row"><span class="hm-note" id="hm-package-count" aria-live="polite">0 pakker plassert</span><button class="hm-button hm-small" type="button" id="hm-place-package-button" data-action="toggle-package-placement">Legg ut pakker</button></div>
+          <p class="hm-note" id="hm-package-mode" aria-live="polite" hidden>Trykk på kartet for å plassere pakker. Trykk «Ferdig» når du er klar.</p>
+        </div>
+        <div class="hm-map" id="hm-map">
+          <svg id="hm-package-map" viewBox="0 0 360 260" role="img" aria-label="Kartskisse over Gjerpen skole og Gjerpen kirke">
+            <rect width="360" height="260" fill="var(--hm-map)"/>
+            <path d="M0 0h112l27 50-16 50-66 5L0 72zM251 179l43-42 66 17v106H238z" fill="var(--hm-park)"/>
+            <path d="M332 0h28v114l-33-13-10-44z" fill="var(--hm-water)"/>
+            <path d="M29 109c15-9 33-8 48 3l-4 37-24 18-27-19z" fill="var(--hm-forest)" opacity=".82" aria-label="Skog inne i spilleområdet"/>
+            <g fill="var(--hm-forest-deep)" aria-hidden="true"><path d="M34 141l8-16 8 16zM41 149v-8h2v8z"/><path d="M48 136l9-18 9 18zM56 146v-10h2v10z"/><path d="M64 145l8-16 8 16zM71 153v-8h2v8z"/></g>
+            <path d="M96 181c13-5 18 10 32 7s12 8 21 8" fill="none" stroke="var(--hm-water)" stroke-width="13" stroke-linecap="round" aria-label="Vann inne i spilleområdet"/>
+            <path d="M96 181c13-5 18 10 32 7s12 8 21 8" fill="none" stroke="var(--hm-water-line)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M-20 170c65-48 121 39 187-2s106-49 213-4" fill="none" stroke="var(--hm-road-edge)" stroke-width="21"/>
+            <path d="M-20 170c65-48 121 39 187-2s106-49 213-4" fill="none" stroke="var(--hm-road)" stroke-width="14"/>
+            <path d="M139-20c-17 49 10 92 17 126s-22 77 2 176" fill="none" stroke="var(--hm-road-edge)" stroke-width="17"/>
+            <path d="M139-20c-17 49 10 92 17 126s-22 77 2 176" fill="none" stroke="var(--hm-road)" stroke-width="10"/>
+            <path d="M278-20c-18 54-4 91 13 127s-6 89-47 167" fill="none" stroke="var(--hm-road-edge)" stroke-width="16"/>
+            <path d="M278-20c-18 54-4 91 13 127s-6 89-47 167" fill="none" stroke="var(--hm-road)" stroke-width="10"/>
+            <g fill="var(--hm-building)" opacity=".82" aria-label="Hus og bygninger">
+              <rect x="31" y="54" width="18" height="12" rx="2"/><rect x="53" y="48" width="16" height="11" rx="2"/>
+              <rect x="84" y="44" width="18" height="12" rx="2"/><rect x="108" y="53" width="17" height="12" rx="2"/>
+              <rect x="228" y="59" width="18" height="12" rx="2"/><rect x="251" y="68" width="16" height="11" rx="2"/>
+              <rect x="276" y="84" width="19" height="12" rx="2"/><rect x="299" y="94" width="17" height="12" rx="2"/>
+              <rect x="33" y="184" width="17" height="12" rx="2"/><rect x="55" y="192" width="19" height="12" rx="2"/>
+              <rect x="238" y="197" width="17" height="12" rx="2"/><rect x="260" y="207" width="19" height="12" rx="2"/>
+            </g>
+            <g fill="var(--hm-building)" stroke="var(--hm-building-edge)" stroke-width="2" aria-label="Bygninger inne i spilleområdet"><rect x="117" y="105" width="20" height="14" rx="2"/><rect x="143" y="111" width="18" height="13" rx="2"/><rect x="128" y="130" width="21" height="14" rx="2"/><path d="M123 110h8M149 116h7M134 135h9" fill="none" stroke="var(--hm-building-edge)" stroke-width="1.5"/></g>
+            <polygon id="hm-zone-editor" points="" fill="color-mix(in oklab, var(--hm-green) 5%, transparent)" stroke="var(--hm-green)" stroke-width="3" stroke-dasharray="8 6" aria-label="Spilleområde"/><g id="hm-zone-editor-points" aria-hidden="true" pointer-events="none"></g><g id="hm-checkpoint-map-layer" aria-label="Kontrollsoner"></g>
+            <circle cx="124" cy="91" r="6" fill="var(--hm-orange)"/><text x="135" y="95">Gjerpen skole</text>
+            <circle cx="207" cy="158" r="6" fill="var(--hm-orange)"/><text x="218" y="162">Gjerpen kirke</text>
+            <g class="hm-player-pin">
+              <g class="hm-approx-mark"><circle cx="79" cy="148" r="19" fill="color-mix(in oklab, var(--hm-red) 20%, transparent)" stroke="var(--hm-red)" stroke-dasharray="4 4"/><circle cx="79" cy="148" r="5" fill="var(--hm-red)"/></g>
+              <g class="hm-exact-mark"><circle cx="79" cy="148" r="7" fill="var(--hm-red)" stroke="var(--hm-surface)" stroke-width="2"/></g>
+              <text class="hm-name" x="88" y="143">Jonas</text>
+            </g>
+            <g class="hm-player-pin">
+              <g class="hm-approx-mark"><circle cx="159" cy="198" r="19" fill="color-mix(in oklab, var(--hm-green) 20%, transparent)" stroke="var(--hm-green)" stroke-dasharray="4 4"/><circle cx="159" cy="198" r="5" fill="var(--hm-green)"/></g>
+              <g class="hm-exact-mark"><circle cx="159" cy="198" r="7" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/></g>
+              <text class="hm-name" x="168" y="194">Mina</text>
+            </g>
+            <g class="hm-player-pin">
+              <g class="hm-approx-mark"><circle cx="186" cy="118" r="19" fill="color-mix(in oklab, var(--hm-green) 20%, transparent)" stroke="var(--hm-green)" stroke-dasharray="4 4"/><circle cx="186" cy="118" r="5" fill="var(--hm-green)"/></g>
+              <g class="hm-exact-mark"><circle cx="186" cy="118" r="7" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/></g>
+              <text class="hm-name" x="195" y="114">Emil</text>
+            </g>
+            <text x="18" y="244" style="font-size:11px">Kartskisse · ikke live GPS</text>
+            <g id="hm-package-layer" aria-label="Pakker plassert på kartet"></g>
+          </svg>
+          <div class="hm-map-legend" aria-label="Kartforklaring"><span><i class="hm-legend-swatch is-forest" aria-hidden="true"></i>Skog</span><span><i class="hm-legend-swatch is-building" aria-hidden="true"></i>Bygninger</span><span><i class="hm-legend-swatch is-water" aria-hidden="true"></i>Vann</span><span class="hm-checkpoint-legend" hidden><i class="hm-legend-swatch is-control" aria-hidden="true"></i>Kontrollsone</span></div>
+          <div class="hm-map-caption"><span>Område rundt Gjerpen</span><span>Varsel på</span></div>
+        </div>
+        <div id="hm-gps-warning" class="hm-alert" role="status" aria-live="polite" hidden>Du nærmer deg grensen for spilleområdet.</div>
+        <div class="hm-stack" style="margin-top:12px">
+          <button class="hm-button" type="button" data-action="gps-warning">Prøv GPS-varsel</button>
+          <p class="hm-note">Dette er en skisse med eksempelposisjoner. Appen bruker ikke GPS i denne betaen.</p>
+        </div>
+      </section>
+
+      <section class="hm-page" data-page="rules" hidden>
+        <p class="hm-kicker">Før runden starter</p>
+        <h1>Regler for Gjerpen-runden</h1>
+        <p class="hm-sub">Alle spillerne får se reglene først.</p>
+        <ol class="hm-rules">
+          <li><span class="hm-rule-number">1</span><span>Man må ta på spilleren i virkeligheten for å ta hen.</span></li>
+          <li><span class="hm-rule-number">2</span><span>Jegeren melder fra i appen. Den som ble tatt, bekrefter.</span></li>
+          <li><span class="hm-rule-number">3</span><span>Gå tilbake innenfor sonen hvis du får grensevarsel. Etter 10 sekunder utenfor gjelder lobbyregelen.</span></li>
+          <li><span class="hm-rule-number">4</span><span>Hold dere unna veier og private områder.</span></li>
+          <li><span class="hm-rule-number">5</span><span>Hvis pakker er slått på, får du en tilfeldig pakke når du kommer fram til en markert plass: ekstrem fordel, fordel, ulempe eller ekstrem ulempe.</span></li>
+          <li><span class="hm-rule-number">6</span><span>Stopp spillet hvis noen trenger hjelp eller pause.</span></li>
+          <li id="hm-checkpoint-rule" hidden><span class="hm-rule-number">7</span><span>Besøk alle kontrollsonene <span id="hm-checkpoint-rule-order">i valgfri rekkefølge</span>. Blir du tatt, går du over til jegerlaget.</span></li>
+        </ol>
+        <label class="hm-checkline"><input type="checkbox" id="hm-read-rules"><span>Jeg har lest reglene og er klar.</span></label>
+        <button class="hm-button hm-primary hm-wide" type="button" data-action="begin" id="hm-begin" disabled>Start runden</button>
+      </section>
+
+      <section class="hm-page" data-page="live" hidden>
+        <div class="hm-map hm-live-map">
+          <div class="hm-live-clock" aria-label="Rundetid">
+            <div class="hm-kicker">Runde igjen</div>
+            <div class="hm-clock" id="hm-round-clock">30:00</div>
+            <div class="hm-headstart-clock" id="hm-headstart-clock" hidden></div>
+            <div class="hm-pip-time" id="hm-pip-time">Pip om 05:00</div>
+          </div>
+          <div class="hm-live-toast" id="hm-live-toast" role="status" aria-live="polite" hidden></div>
+          <svg viewBox="0 0 360 470" role="img" aria-label="Kart over spilleområdet med jeger og spillere">
+            <rect width="360" height="470" fill="var(--hm-map)"/>
+            <path d="M0 0h112l28 52-19 62-65 8L0 94zM249 333l44-48 67 25v160H233z" fill="var(--hm-park)"/>
+            <path d="M336 0h24v164l-37-18-13-58z" fill="var(--hm-water)"/>
+            <path d="M40 145c12-16 32-20 54-12l18 24-13 31-33 9-28-23z" fill="var(--hm-forest)" opacity=".84" aria-label="Skog inne i spilleområdet"/>
+            <g fill="var(--hm-forest-deep)" aria-hidden="true"><path d="M48 174l10-19 10 19zM56 184v-10h3v10z"/><path d="M67 166l11-21 11 21zM76 177v-11h3v11z"/><path d="M88 178l10-19 10 19zM96 188v-10h3v10z"/></g>
+            <path d="M130 256c17 9 21 20 33 20s19 10 30 17" fill="none" stroke="var(--hm-water)" stroke-width="15" stroke-linecap="round" aria-label="Vann inne i spilleområdet"/>
+            <path d="M130 256c17 9 21 20 33 20s19 10 30 17" fill="none" stroke="var(--hm-water-line)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M-18 213c62-50 108 32 166 15s103-67 230-25" fill="none" stroke="var(--hm-road-edge)" stroke-width="22"/>
+            <path d="M-18 213c62-50 108 32 166 15s103-67 230-25" fill="none" stroke="var(--hm-road)" stroke-width="14"/>
+            <path d="M120-18c-13 61 18 91 25 144s-20 83-2 150 5 127 23 212" fill="none" stroke="var(--hm-road-edge)" stroke-width="17"/>
+            <path d="M120-18c-13 61 18 91 25 144s-20 83-2 150 5 127 23 212" fill="none" stroke="var(--hm-road)" stroke-width="10"/>
+            <path d="M276-18c-21 61-8 104 12 155s-8 102-35 154-11 91-33 196" fill="none" stroke="var(--hm-road-edge)" stroke-width="16"/>
+            <path d="M276-18c-21 61-8 104 12 155s-8 102-35 154-11 91-33 196" fill="none" stroke="var(--hm-road)" stroke-width="9"/>
+            <g fill="var(--hm-building)" opacity=".82" aria-label="Hus og bygninger">
+              <rect x="31" y="97" width="20" height="14" rx="2"/><rect x="53" y="90" width="18" height="13" rx="2"/>
+              <rect x="84" y="151" width="20" height="14" rx="2"/><rect x="108" y="96" width="19" height="14" rx="2"/>
+              <rect x="228" y="110" width="20" height="14" rx="2"/><rect x="251" y="125" width="18" height="13" rx="2"/>
+              <rect x="276" y="151" width="21" height="14" rx="2"/><rect x="299" y="169" width="19" height="14" rx="2"/>
+              <rect x="33" y="335" width="19" height="14" rx="2"/><rect x="55" y="350" width="21" height="14" rx="2"/>
+              <rect x="238" y="360" width="19" height="14" rx="2"/><rect x="260" y="378" width="21" height="14" rx="2"/>
+            </g>
+            <g fill="var(--hm-building)" stroke="var(--hm-building-edge)" stroke-width="2" aria-label="Bygninger inne i spilleområdet"><rect x="146" y="155" width="20" height="15" rx="2"/><rect x="171" y="159" width="18" height="14" rx="2"/><rect x="151" y="177" width="23" height="15" rx="2"/><path d="M152 160h8M177 164h7M157 182h10" fill="none" stroke="var(--hm-building-edge)" stroke-width="1.5"/></g>
+            <polygon id="hm-zone-live" points="" fill="color-mix(in oklab, var(--hm-green) 5%, transparent)" stroke="var(--hm-green)" stroke-width="3" stroke-dasharray="8 6" aria-label="Spilleområde"/><g id="hm-zone-live-points" aria-hidden="true" pointer-events="none"></g><g id="hm-checkpoint-live-layer" aria-label="Kontrollsoner"></g>
+            <circle cx="124" cy="137" r="6" fill="var(--hm-orange)"/><text x="136" y="141">Gjerpen skole</text>
+            <circle cx="217" cy="261" r="6" fill="var(--hm-orange)"/><text x="229" y="265">Gjerpen kirke</text>
+            <g class="hm-live-pin" data-player="Jonas" data-base-x="82" data-base-y="227">
+              <g class="hm-approx-mark"><circle cx="82" cy="227" r="23" fill="color-mix(in oklab, var(--hm-red) 18%, transparent)" stroke="var(--hm-red)" stroke-dasharray="4 4"/><circle cx="82" cy="227" r="5" fill="var(--hm-red)"/></g>
+              <g class="hm-exact-mark"><circle cx="82" cy="227" r="7" fill="var(--hm-red)" stroke="var(--hm-surface)" stroke-width="2"/></g>
+              <text class="hm-name" x="94" y="223">Jonas · jeger</text>
+            </g>
+            <g class="hm-live-pin" data-player="Mina" data-base-x="175" data-base-y="326">
+              <g class="hm-approx-mark"><circle cx="175" cy="326" r="23" fill="color-mix(in oklab, var(--hm-green) 18%, transparent)" stroke="var(--hm-green)" stroke-dasharray="4 4"/><circle cx="175" cy="326" r="5" fill="var(--hm-green)"/></g>
+              <g class="hm-exact-mark"><circle cx="175" cy="326" r="7" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/></g>
+              <text class="hm-name" x="187" y="322">Mina</text>
+            </g>
+            <g class="hm-live-pin" data-player="Emil" data-base-x="230" data-base-y="180">
+              <g class="hm-approx-mark"><circle cx="230" cy="180" r="23" fill="color-mix(in oklab, var(--hm-green) 18%, transparent)" stroke="var(--hm-green)" stroke-dasharray="4 4"/><circle cx="230" cy="180" r="5" fill="var(--hm-green)"/></g>
+              <g class="hm-exact-mark"><circle cx="230" cy="180" r="7" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/></g>
+              <text class="hm-name" x="242" y="176">Emil</text>
+            </g>
+            <g id="hm-live-package-layer" aria-label="Pakker plassert på kartet"></g>
+          </svg>
+          <div class="hm-map-legend" aria-label="Kartforklaring"><span><i class="hm-legend-swatch is-forest" aria-hidden="true"></i>Skog</span><span><i class="hm-legend-swatch is-building" aria-hidden="true"></i>Bygninger</span><span><i class="hm-legend-swatch is-water" aria-hidden="true"></i>Vann</span><span class="hm-checkpoint-legend" hidden><i class="hm-legend-swatch is-control" aria-hidden="true"></i>Kontrollsone</span></div>
+        </div>
+        <div class="hm-live-bottom">
+          <div id="hm-checkpoint-progress" class="hm-alert" role="status" aria-live="polite" hidden></div>
+          <button class="hm-button hm-wide" type="button" data-action="simulate-checkpoint" id="hm-checkpoint-trigger" hidden>Simuler nådd kontrollsone</button>
+          <button class="hm-button hm-primary hm-wide" type="button" data-action="tag">Jeg har tatt noen</button>
+          <div id="hm-tag-confirm" class="hm-alert" role="status" aria-live="polite" hidden>Venter på at Mina bekrefter.</div>
+          <button class="hm-button hm-wide" type="button" data-action="confirm-tag" hidden>Bekreft at jeg ble tatt · demo</button>
+          <button class="hm-button hm-wide" type="button" data-action="simulate-package" id="hm-package-trigger" hidden>Simuler at du kommer fram til en pakke</button>
+          <div id="hm-package-result" class="hm-alert" role="status" aria-live="polite" hidden>
+            <strong id="hm-package-level"></strong>
+            <p id="hm-package-effect" style="margin:5px 0 9px"></p>
+            <span class="hm-note">Eksempelkort · virkningen kan dere endre.</span>
+            <button class="hm-button hm-wide" type="button" data-action="close-package" style="margin-top:9px">Fortsett runden</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="hm-page" data-page="results" hidden>
+        <p class="hm-kicker">Runden er ferdig</p>
+        <h1 id="hm-results-title">Mina vant!</h1>
+        <p class="hm-sub">Eksempel på statistikken etter en runde.</p>
+        <div class="hm-stats">
+          <div class="hm-stat"><span class="hm-stat-value">3,4 km</span><span class="hm-stat-label">Jonas løp</span></div>
+          <div class="hm-stat"><span class="hm-stat-value">2,8 km</span><span class="hm-stat-label">Mina løp</span></div>
+          <div class="hm-stat"><span class="hm-stat-value">24 min</span><span class="hm-stat-label">Rundens lengde</span></div>
+          <div class="hm-stat"><span class="hm-stat-value">2</span><span class="hm-stat-label">GPS-varsler</span></div>
+        </div>
+        <h3>GPS-hendelser</h3>
+        <div class="hm-event"><span class="hm-event-dot"></span><span><strong>Mina</strong><br><span class="hm-muted">Nærmet seg sonegrensen · 19:42</span></span></div>
+        <div class="hm-event"><span class="hm-event-dot"></span><span><strong>Emil</strong><br><span class="hm-muted">GPS-signalet var borte en liten stund · 19:51</span></span></div>
+        <p class="hm-note" style="margin-top:12px">Distanse og GPS-hendelser er eksempeltall i denne betaen.</p>
+        <button class="hm-button hm-wide" type="button" data-screen="lobby">Tilbake til lobbyen</button>
+      </section>
+    </main>
+
+    <nav class="hm-nav" aria-label="Appmeny" hidden>
+      <button class="hm-tab" type="button" data-screen="lobby" aria-current="page"><span class="hm-tab-icon" aria-hidden="true">⌂</span><span>Lobby</span></button>
+      <button class="hm-tab" type="button" data-screen="settings"><span class="hm-tab-icon" aria-hidden="true">⚙</span><span>Oppsett</span></button>
+      <button class="hm-tab" type="button" data-screen="map"><span class="hm-tab-icon" aria-hidden="true">⌖</span><span>Kart</span></button>
+      <button class="hm-tab" type="button" data-screen="results"><span class="hm-tab-icon" aria-hidden="true">↗</span><span>Etterpå</span></button>
+    </nav>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById("funrun-demo-copy");
+      if (!root) return;
+      const defaults = {
+        screen: "home", mode: "tag", headstart: false, headstartSeconds: 60,
+        interval: "5", intervalCustom: 7, revealSeconds: 15, labels: "names",
+        precision: "approx", roundMinutes: 30, outside: "out", perks: false, packages: [], placingPackage: false, packageResult: null, warning: false, caught: false,
+        quickDemo: false, players: ["Jonas", "Mina", "Emil"], hunters: ["Jonas"], outPlayers: [], hunterName: "Jonas", pendingPlayer: null, caughtCount: 0, resultTitle: "",
+        zonePoints: [{x:54,y:78},{x:113,y:61},{x:192,y:70},{x:258,y:108},{x:265,y:158},{x:231,y:205},{x:175,y:226},{x:117,y:212},{x:70,y:180},{x:42,y:127}], zoneClosed: true, editingZone: false,
+        checkpointCount: 3, checkpointOrder: "any", checkpoints: [{x:82,y:116},{x:174,y:106},{x:225,y:174}], placingCheckpoints: false, checkpointProgress: 0
+      };
+      let state = { ...defaults };
+      let pingSecondsRemaining = 0;
+      let revealSecondsRemaining = 0;
+      let pingIntervalSeconds = 0;
+      let pingTicker = null;
+      let roundTicker = null;
+      let demoTicker = null;
+      let roundSecondsRemaining = 0;
+      let demoStep = 0;
+      try {
+        const saved = window.openai && window.openai.widgetState && window.openai.widgetState.privateContent;
+        if (saved && saved.app === "funrun-full-demo-home-v3") state = { ...defaults, ...saved.ui };
+      } catch (_) {}
+
+      const save = () => {
+        try {
+          if (window.openai && typeof window.openai.setWidgetState === "function") {
+            window.openai.setWidgetState({ privateContent: { app: "funrun-full-demo-home-v3", ui: state } }).catch(() => {});
+          }
+        } catch (_) {}
+      };
+      const screenNames = ["home", "how", "lobby", "settings", "map", "rules", "live", "results"];
+      const modeLabels = { tag: "Sisten", infection: "Infection", catch: "Catch", checkpoints: "Kontrollpunkter" };
+      const formatClock = seconds => {
+        const safeSeconds = Math.max(0, Number(seconds) || 0);
+        return String(Math.floor(safeSeconds / 60)).padStart(2, "0") + ":" + String(safeSeconds % 60).padStart(2, "0");
+      };
+      const updatePipClock = () => {
+        const display = root.querySelector("#hm-pip-time");
+        if (state.interval === "always") {
+          display.textContent = "Alltid synlig";
+          display.dataset.state = "always";
+        } else if (revealSecondsRemaining > 0) {
+          display.textContent = "PIP · synlig " + formatClock(revealSecondsRemaining);
+          display.dataset.state = "reveal";
+        } else {
+          const intervalMinutes = state.interval === "custom" ? state.intervalCustom : Number(state.interval);
+          display.textContent = "Pip om " + formatClock(pingSecondsRemaining || intervalMinutes * 60);
+          display.dataset.state = "waiting";
+        }
+      };
+      const stopPipClock = () => {
+        if (pingTicker) clearInterval(pingTicker);
+        pingTicker = null;
+      };
+      const startPipClock = () => {
+        stopPipClock();
+        revealSecondsRemaining = 0;
+        if (state.interval === "always") {
+          pingSecondsRemaining = 0;
+          updatePipClock();
+          return;
+        }
+        const intervalMinutes = state.interval === "custom" ? state.intervalCustom : Number(state.interval);
+        pingIntervalSeconds = Math.max(1, intervalMinutes * 60);
+        pingSecondsRemaining = pingIntervalSeconds;
+        updatePipClock();
+        pingTicker = setInterval(() => {
+          if (state.screen !== "live") {
+            stopPipClock();
+            return;
+          }
+          if (revealSecondsRemaining > 0) {
+            revealSecondsRemaining--;
+            if (revealSecondsRemaining === 0) pingSecondsRemaining = pingIntervalSeconds;
+          } else if (pingSecondsRemaining > 0) {
+            pingSecondsRemaining--;
+            if (pingSecondsRemaining === 0) revealSecondsRemaining = Math.max(1, Number(state.revealSeconds) || 1);
+          }
+          updatePipClock();
+        }, 1000);
+      };
+      const renderPackageMarkers = () => {
+        const svgNamespace = "http://www.w3.org/2000/svg";
+        const renderLayer = (id, yScale) => {
+          const layer = root.querySelector("#" + id);
+          while (layer.firstChild) layer.removeChild(layer.firstChild);
+          (state.perks && Array.isArray(state.packages) ? state.packages : []).forEach((point, index) => {
+            const marker = document.createElementNS(svgNamespace, "g");
+            marker.setAttribute("aria-label", "Pakke " + (index + 1));
+            marker.setAttribute("pointer-events", "none");
+            const circle = document.createElementNS(svgNamespace, "circle");
+            circle.setAttribute("cx", String(point.x));
+            circle.setAttribute("cy", String(Math.round(point.y * yScale)));
+            circle.setAttribute("r", "11");
+            circle.setAttribute("fill", "var(--hm-orange)");
+            circle.setAttribute("stroke", "var(--hm-surface)");
+            circle.setAttribute("stroke-width", "2");
+            const label = document.createElementNS(svgNamespace, "text");
+            label.setAttribute("x", String(point.x));
+            label.setAttribute("y", String(Math.round(point.y * yScale) + 4));
+            label.setAttribute("text-anchor", "middle");
+            label.setAttribute("font-size", "10");
+            label.setAttribute("font-weight", "500");
+            label.setAttribute("fill", "var(--hm-green-ink)");
+            label.textContent = String(index + 1);
+            marker.append(circle, label);
+            layer.appendChild(marker);
+          });
+        };
+        renderLayer("hm-package-layer", 1);
+        renderLayer("hm-live-package-layer", 470 / 260);
+      };
+      const renderCheckpoints = () => {
+        const svgNamespace = "http://www.w3.org/2000/svg";
+        const layers = [["hm-checkpoint-lobby-layer",190],["hm-checkpoint-map-layer",260],["hm-checkpoint-live-layer",470]];
+        layers.forEach(([id,height]) => {
+          const layer = root.querySelector("#" + id); if (!layer) return;
+          while (layer.firstChild) layer.removeChild(layer.firstChild);
+          if (state.mode !== "checkpoints" && !state.placingCheckpoints) return;
+          state.checkpoints.slice(0,state.checkpointCount).forEach((point,index) => {
+            const marker = document.createElementNS(svgNamespace,"g"); marker.setAttribute("pointer-events","none"); marker.setAttribute("aria-label","Kontrollsone " + (index+1));
+            const circle = document.createElementNS(svgNamespace,"circle"); circle.setAttribute("cx",String(point.x)); circle.setAttribute("cy",String(Math.round(point.y*height/260))); circle.setAttribute("r","15"); circle.setAttribute("fill","var(--hm-control)"); circle.setAttribute("stroke","var(--hm-surface)"); circle.setAttribute("stroke-width","2");
+            const label = document.createElementNS(svgNamespace,"text"); label.setAttribute("x",String(point.x)); label.setAttribute("y",String(Math.round(point.y*height/260)+4)); label.setAttribute("text-anchor","middle"); label.setAttribute("font-size","10"); label.setAttribute("font-weight","600"); label.setAttribute("class","hm-checkpoint-number"); label.setAttribute("fill","var(--hm-control-ink)"); label.textContent=String(index+1); marker.append(circle,label); layer.appendChild(marker);
+          });
+        });
+      };
+      const renderLivePlayers = () => {
+        const routes = { Jonas: [[0,0],[3,1],[8,2],[13,-2],[7,-6],[1,-4]], Mina: [[0,0],[-3,-2],[-8,-6],[-12,-2],[-5,3],[2,1]], Emil: [[0,0],[2,3],[5,7],[1,11],[-4,6],[-2,1]] };
+        root.querySelectorAll(".hm-live-pin").forEach(pin => {
+          const name = pin.dataset.player;
+          const route = routes[name] || [[0,0]];
+          const [dx,dy] = state.quickDemo ? route[demoStep % route.length] : [0,0];
+          pin.setAttribute("transform", "translate(" + dx + " " + dy + ")");
+          pin.hidden = state.outPlayers.includes(name);
+          const isHunter = state.hunters.includes(name);
+          const color = isHunter ? "var(--hm-red)" : "var(--hm-green)";
+          pin.querySelectorAll(".hm-exact-mark circle").forEach(circle => circle.setAttribute("fill", color));
+          const approximate = pin.querySelectorAll(".hm-approx-mark circle");
+          if (approximate[0]) approximate[0].setAttribute("stroke", color);
+          if (approximate[1]) approximate[1].setAttribute("fill", color);
+          const label = pin.querySelector(".hm-name");
+          if (label) label.textContent = name + (isHunter ? " · jeger" : "");
+        });
+      };
+      const stopDemoSimulation = () => { if (demoTicker) clearInterval(demoTicker); demoTicker = null; };
+      const startDemoSimulation = () => {
+        stopDemoSimulation();
+        demoStep = 0;
+        if (!state.quickDemo) return;
+        const messages = ["Simulert GPS · Mina beveger seg ved skogen", "Simulert GPS · Emil går langs bekken", "Simulert GPS · spillerne flytter seg på kartet", "Simulert GPS · Mina nærmer seg sonegrensen"];
+        demoTicker = setInterval(() => {
+          if (state.screen !== "live" || !state.quickDemo) { stopDemoSimulation(); return; }
+          demoStep++;
+          renderLivePlayers();
+          root.querySelector("#hm-live-toast").textContent = messages[demoStep % messages.length];
+        }, 2300);
+      };
+      const stopRoundTimer = () => { if (roundTicker) clearInterval(roundTicker); roundTicker = null; };
+      const startRoundTimer = () => {
+        stopRoundTimer();
+        roundSecondsRemaining = Math.max(1, Number(state.roundMinutes) || 1) * 60;
+        root.querySelector("#hm-round-clock").textContent = formatClock(roundSecondsRemaining);
+        roundTicker = setInterval(() => {
+          if (state.screen !== "live") { stopRoundTimer(); return; }
+          roundSecondsRemaining = Math.max(0, roundSecondsRemaining - 1);
+          root.querySelector("#hm-round-clock").textContent = formatClock(roundSecondsRemaining);
+          if (roundSecondsRemaining === 0) { state.resultTitle = "Tiden er ute!"; setScreen("results"); return; }
+        }, 1000);
+      };
+      const renderZone = () => {
+        const shapes = [["hm-zone-lobby", "hm-zone-lobby-points", 190], ["hm-zone-editor", "hm-zone-editor-points", 260], ["hm-zone-live", "hm-zone-live-points", 470]];
+        const svgNamespace = "http://www.w3.org/2000/svg";
+        shapes.forEach(([shapeId, layerId, viewHeight]) => {
+          const shape = root.querySelector("#" + shapeId);
+          const layer = root.querySelector("#" + layerId);
+          if (!shape || !layer) return;
+          const scaled = state.zonePoints.map(point => ({x: point.x, y: point.y * viewHeight / 260}));
+          shape.setAttribute("points", scaled.map(point => point.x.toFixed(1) + "," + point.y.toFixed(1)).join(" "));
+          shape.setAttribute("fill", state.zoneClosed && state.zonePoints.length >= 3 ? "color-mix(in oklab, var(--hm-green) 5%, transparent)" : "none");
+          while (layer.firstChild) layer.removeChild(layer.firstChild);
+          if (shapeId === "hm-zone-editor" && state.editingZone) scaled.forEach((point, index) => {
+            const marker = document.createElementNS(svgNamespace, "circle");
+            marker.setAttribute("cx", String(point.x)); marker.setAttribute("cy", String(point.y)); marker.setAttribute("r", "5");
+            marker.setAttribute("fill", "var(--hm-green)"); marker.setAttribute("stroke", "var(--hm-surface)"); marker.setAttribute("stroke-width", "2");
+            marker.setAttribute("aria-label", "Punkt " + (index + 1)); layer.appendChild(marker);
+          });
+        });
+      };
+      const update = () => {
+        root.querySelectorAll(".hm-page").forEach(page => { page.hidden = page.dataset.page !== state.screen; });
+        const nav = root.querySelector(".hm-nav");
+        const inGame = state.screen === "live";
+        root.querySelector(".hm-phone").classList.toggle("hm-in-game", inGame);
+        nav.hidden = ["home", "how"].includes(state.screen) || inGame;
+        root.querySelectorAll(".hm-tab").forEach(tab => {
+          if (tab.dataset.screen === state.screen || (state.screen === "live" && tab.dataset.screen === "map")) tab.setAttribute("aria-current", "page");
+          else tab.removeAttribute("aria-current");
+        });
+        root.querySelectorAll('[data-choice="mode"]').forEach(button => button.setAttribute("aria-pressed", String(button.dataset.value === state.mode)));
+        root.querySelectorAll('[data-choice="checkpointOrder"]').forEach(button => button.setAttribute("aria-pressed", String(button.dataset.value === state.checkpointOrder)));
+        root.querySelectorAll('[data-choice="labels"]').forEach(button => button.setAttribute("aria-pressed", String(button.dataset.value === state.labels)));
+        root.querySelectorAll('[data-choice="precision"]').forEach(button => button.setAttribute("aria-pressed", String(button.dataset.value === state.precision)));
+        root.querySelectorAll('[data-choice="outside"]').forEach(button => button.setAttribute("aria-pressed", String(button.dataset.value === state.outside)));
+        root.querySelector("#hm-checkpoint-settings").hidden = state.mode !== "checkpoints";
+        root.querySelector("#hm-checkpoint-count").value = state.checkpointCount;
+        root.querySelector("#hm-checkpoint-map-tools").hidden = state.mode !== "checkpoints" && !state.placingCheckpoints;
+        root.querySelector("#hm-checkpoint-count-label").textContent = state.checkpoints.length + " av " + state.checkpointCount + " kontrollsoner plassert";
+        root.querySelector("#hm-place-checkpoints").hidden = state.placingCheckpoints;
+        root.querySelector("#hm-checkpoint-map-status").hidden = !state.placingCheckpoints;
+        root.querySelector("#hm-checkpoint-edit-actions").hidden = !state.placingCheckpoints;
+        root.querySelector('[data-action="finish-checkpoint-placement"]').disabled = state.checkpoints.length !== state.checkpointCount;
+        root.querySelector("#hm-checkpoint-map-status").textContent = "Trykk på kartet for å plassere kontrollsoner (" + state.checkpoints.length + "/" + state.checkpointCount + ").";
+        root.querySelectorAll(".hm-checkpoint-legend").forEach(legend => legend.hidden = state.mode !== "checkpoints");
+        root.querySelector("#hm-checkpoint-rule").hidden = state.mode !== "checkpoints";
+        root.querySelector("#hm-checkpoint-rule-order").textContent = state.checkpointOrder === "ordered" ? "i nummerert rekkefølge" : "i valgfri rekkefølge";
+        root.querySelector("#hm-checkpoint-progress").hidden = state.mode !== "checkpoints" || state.screen !== "live";
+        root.querySelector("#hm-checkpoint-progress").textContent = "Mina har nådd " + state.checkpointProgress + " av " + state.checkpointCount + " kontrollsoner.";
+        root.querySelector("#hm-checkpoint-trigger").hidden = state.mode !== "checkpoints" || state.screen !== "live" || state.checkpointProgress >= state.checkpointCount || state.hunters.includes("Mina");
+        root.querySelector("#hm-checkpoint-trigger").textContent = state.checkpointOrder === "ordered" ? "Simuler nådd sone " + (state.checkpointProgress + 1) : "Simuler nådd kontrollsone";
+        root.querySelector("#hm-mode-help").textContent =
+          state.mode === "tag" ? "Den som blir tatt, blir den nye jegeren." :
+          state.mode === "infection" ? "Den som blir tatt, går over til jegerlaget." :
+          state.mode === "checkpoints" ? "De som blir jaget, prøver å nå alle kontrollsonene. Blir de tatt, går de over til jegerlaget." :
+          "Den som blir tatt, er ute av runden.";
+        root.querySelector("#hm-lobby-summary").textContent =
+          modeLabels[state.mode] + " · " + state.roundMinutes + " min · Synlighet " +
+          (state.interval === "always" ? "alltid" : "hvert " + (state.interval === "custom" ? state.intervalCustom : state.interval) + " min") +
+          (state.mode === "checkpoints" ? " · " + state.checkpointCount + " soner · " + (state.checkpointOrder === "ordered" ? "i rekkefølge" : "valgfritt") : "");
+        root.querySelectorAll(".hm-map").forEach(map => {
+          map.classList.toggle("hm-dots", state.labels === "dots");
+          map.classList.toggle("hm-approx", state.precision === "approx");
+        });
+        const perksEnabled = root.querySelector("#hm-perks-enabled");
+        perksEnabled.checked = state.perks;
+        root.querySelector("#hm-perks-summary").hidden = !state.perks;
+        root.querySelector("#hm-open-package-map").hidden = !state.perks;
+        root.querySelector("#hm-package-tools").hidden = !state.perks;
+        root.querySelector("#hm-package-off-note").hidden = state.perks;
+        root.querySelector("#hm-package-count").textContent = state.packages.length + (state.packages.length === 1 ? " pakke plassert" : " pakker plassert");
+        root.querySelector("#hm-package-mode").hidden = !state.placingPackage;
+        root.querySelector("#hm-start-zone-edit").hidden = state.editingZone;
+        root.querySelector("#hm-zone-controls").hidden = !state.editingZone;
+        const zoneStatus = root.querySelector("#hm-zone-status");
+        if (state.editingZone) zoneStatus.textContent = state.zoneClosed ? "Området er lukket · " + state.zonePoints.length + " punkter. Lagre når du er fornøyd." : "Trykk på kartet for å sette punkter · minst 3 kreves (" + state.zonePoints.length + " nå).";
+        else zoneStatus.textContent = "Spilleområdet har " + state.zonePoints.length + " punkter.";
+        root.querySelector("#hm-undo-zone-point").disabled = !state.zonePoints.length;
+        root.querySelector("#hm-clear-zone").disabled = !state.zonePoints.length;
+        root.querySelector("#hm-close-zone").disabled = state.zonePoints.length < 3 || state.zoneClosed;
+        root.querySelector("#hm-save-zone").disabled = !state.zoneClosed || state.zonePoints.length < 3;
+        root.querySelector("#hm-place-package-button").textContent = state.placingPackage ? "Ferdig" : "Legg ut pakker";
+        const hasOpenPackage = Boolean(state.packageResult);
+        root.querySelector("#hm-package-trigger").hidden = !state.perks || !state.packages.length || state.screen !== "live" || hasOpenPackage;
+        root.querySelector("#hm-package-result").hidden = !hasOpenPackage;
+        root.querySelector("#hm-package-level").textContent = hasOpenPackage ? state.packageResult.level : "";
+        root.querySelector("#hm-package-effect").textContent = hasOpenPackage ? state.packageResult.effect : "";
+        renderPackageMarkers();
+        renderZone();
+        renderCheckpoints();
+        const headstart = root.querySelector("#hm-headstart");
+        headstart.checked = state.headstart;
+        const headstartInput = root.querySelector("#hm-headstart-seconds");
+        headstartInput.disabled = !state.headstart;
+        headstartInput.value = state.headstartSeconds;
+        root.querySelector("#hm-round-clock").textContent = state.screen === "live" ? formatClock(roundSecondsRemaining) : String(state.roundMinutes).padStart(2, "0") + ":00";
+        const headstartClock = root.querySelector("#hm-headstart-clock");
+        headstartClock.hidden = !state.headstart;
+        const headstartMinutes = Math.floor(state.headstartSeconds / 60);
+        const headstartRemainder = String(state.headstartSeconds % 60).padStart(2, "0");
+        headstartClock.textContent = "Forsprang · " + String(headstartMinutes).padStart(2, "0") + ":" + headstartRemainder;
+        updatePipClock();
+        root.querySelector("#hm-round-length").value = state.roundMinutes;
+        root.querySelector("#hm-visibility").value = state.interval;
+        root.querySelector("#hm-custom-interval-wrap").hidden = state.interval !== "custom";
+        root.querySelector("#hm-custom-interval").value = state.intervalCustom;
+        root.querySelector("#hm-reveal-seconds").value = state.revealSeconds;
+        root.querySelector("#hm-begin").disabled = !root.querySelector("#hm-read-rules").checked;
+        root.querySelector("#hm-gps-warning").hidden = !state.warning;
+        root.querySelector("#hm-tag-confirm").hidden = !state.caught;
+        root.querySelector("#hm-tag-confirm").textContent = state.pendingPlayer ? "Venter på at " + state.pendingPlayer + " bekrefter." : "";
+        root.querySelector('[data-action="tag"]').hidden = state.caught;
+        root.querySelector('[data-action="confirm-tag"]').hidden = !state.caught;
+        root.querySelector('[data-action="confirm-tag"]').textContent = "Bekreft at jeg ble tatt · " + (state.pendingPlayer || "spiller");
+        root.querySelector("#hm-live-toast").hidden = !state.quickDemo;
+        if (state.quickDemo && !root.querySelector("#hm-live-toast").textContent) root.querySelector("#hm-live-toast").textContent = "Simulert runde · spillerne beveger seg";
+        root.querySelector("#hm-results-title").textContent = state.resultTitle || "Mina vant!";
+        renderLivePlayers();
+      };
+      const setScreen = screen => {
+        if (!screenNames.includes(screen)) return;
+        state.screen = screen;
+        if (screen !== "map") { state.placingPackage = false; state.placingCheckpoints = false; state.editingZone = false; }
+        if (screen === "live") state.packageResult = null;
+        update();
+        if (screen === "live") { startPipClock(); startRoundTimer(); startDemoSimulation(); }
+        else { stopPipClock(); stopRoundTimer(); stopDemoSimulation(); }
+        save();
+      };
+
+      const mapGestureStates = new WeakMap();
+      const clampMapValue = (value, min, max) => Math.max(min, Math.min(max, value));
+      const setupMapGestures = () => {
+        root.querySelectorAll(".hm-map").forEach(map => {
+          const svg = map.querySelector("svg");
+          if (!svg) return;
+          const view = svg.viewBox.baseVal;
+          const base = { x: view.x, y: view.y, width: view.width, height: view.height };
+          const state = {
+            base,
+            x: base.x,
+            y: base.y,
+            width: base.width,
+            height: base.height,
+            zoom: 1,
+            pointers: new Map(),
+            dragStart: null,
+            dragging: false,
+            lastDistance: 0,
+            suppressClickUntil: 0
+          };
+          mapGestureStates.set(map, state);
+          const writeViewBox = () => svg.setAttribute("viewBox", [state.x, state.y, state.width, state.height].map(value => value.toFixed(2)).join(" "));
+          const panBy = (dx, dy) => {
+            const rect = svg.getBoundingClientRect();
+            if (!rect.width || !rect.height) return;
+            state.x = clampMapValue(state.x - dx * state.width / rect.width, base.x, base.x + base.width - state.width);
+            state.y = clampMapValue(state.y - dy * state.height / rect.height, base.y, base.y + base.height - state.height);
+            writeViewBox();
+          };
+          const zoomAt = (nextZoom, screenX, screenY) => {
+            const rect = svg.getBoundingClientRect();
+            const matrix = svg.getScreenCTM();
+            if (!rect.width || !rect.height || !matrix) return;
+            const point = svg.createSVGPoint();
+            point.x = screenX;
+            point.y = screenY;
+            const world = point.matrixTransform(matrix.inverse());
+            const relativeX = clampMapValue((screenX - rect.left) / rect.width, 0, 1);
+            const relativeY = clampMapValue((screenY - rect.top) / rect.height, 0, 1);
+            state.zoom = clampMapValue(nextZoom, 1, 4);
+            state.width = base.width / state.zoom;
+            state.height = base.height / state.zoom;
+            state.x = clampMapValue(world.x - relativeX * state.width, base.x, base.x + base.width - state.width);
+            state.y = clampMapValue(world.y - relativeY * state.height, base.y, base.y + base.height - state.height);
+            writeViewBox();
+          };
+          map.addEventListener("pointerdown", event => {
+            if (event.target.closest("button")) return;
+            const point = { x: event.clientX, y: event.clientY };
+            state.pointers.set(event.pointerId, point);
+            if (state.pointers.size === 1) {
+              state.dragStart = point;
+              state.dragging = false;
+            } else {
+              const pair = Array.from(state.pointers.values()).slice(0, 2);
+              state.lastDistance = Math.hypot(pair[0].x - pair[1].x, pair[0].y - pair[1].y);
+              state.suppressClickUntil = Date.now() + 500;
+            }
+          });
+          map.addEventListener("pointermove", event => {
+            const previous = state.pointers.get(event.pointerId);
+            if (!previous) return;
+            const point = { x: event.clientX, y: event.clientY };
+            state.pointers.set(event.pointerId, point);
+            if (state.pointers.size >= 2) {
+              const pair = Array.from(state.pointers.values()).slice(0, 2);
+              const distance = Math.hypot(pair[0].x - pair[1].x, pair[0].y - pair[1].y);
+              const centerX = (pair[0].x + pair[1].x) / 2;
+              const centerY = (pair[0].y + pair[1].y) / 2;
+              if (state.lastDistance > 0 && distance > 0) {
+                zoomAt(state.zoom * distance / state.lastDistance, centerX, centerY);
+                state.lastDistance = distance;
+                state.suppressClickUntil = Date.now() + 500;
+              }
+              event.preventDefault();
+              return;
+            }
+            if (state.pointers.size === 1) {
+              if (!state.dragging && state.dragStart && Math.hypot(point.x - state.dragStart.x, point.y - state.dragStart.y) > 8) {
+                state.dragging = true;
+                state.suppressClickUntil = Date.now() + 500;
+                try { if (map.setPointerCapture) map.setPointerCapture(event.pointerId); } catch (_) {}
+              }
+              if (state.dragging) {
+                panBy(point.x - previous.x, point.y - previous.y);
+                state.suppressClickUntil = Date.now() + 500;
+                event.preventDefault();
+              }
+            }
+          });
+          const finishPointer = event => {
+            state.pointers.delete(event.pointerId);
+            if (state.pointers.size < 2) state.lastDistance = 0;
+            if (state.pointers.size === 1) {
+              state.dragStart = Array.from(state.pointers.values())[0];
+              state.dragging = false;
+            } else if (state.pointers.size === 0) {
+              state.dragStart = null;
+              state.dragging = false;
+            }
+          };
+          map.addEventListener("pointerup", finishPointer);
+          map.addEventListener("pointercancel", finishPointer);
+          map.addEventListener("wheel", event => {
+            event.preventDefault();
+            const factor = event.deltaY < 0 ? 1.12 : 1 / 1.12;
+            zoomAt(state.zoom * factor, event.clientX, event.clientY);
+          }, { passive: false });
+        });
+      };
+      setupMapGestures();
+      root.addEventListener("click", async event => {
+        const mapSvg = event.target.closest("#hm-package-map");
+        if (mapSvg && state.placingCheckpoints) {
+          const mapState = mapGestureStates.get(mapSvg.closest(".hm-map"));
+          if (mapState && Date.now() < mapState.suppressClickUntil) return;
+          if (state.checkpoints.length < state.checkpointCount) {
+            const point = mapSvg.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+            const localPoint = point.matrixTransform(mapSvg.getScreenCTM().inverse());
+            state.checkpoints.push({x: Math.max(0, Math.min(360, Math.round(localPoint.x))), y: Math.max(0, Math.min(260, Math.round(localPoint.y)))});
+            update(); save();
+          }
+          return;
+        }
+        if (mapSvg && state.editingZone) {
+          const mapState = mapGestureStates.get(mapSvg.closest(".hm-map"));
+          if (mapState && Date.now() < mapState.suppressClickUntil) return;
+          if (state.zonePoints.length < 24) {
+            const point = mapSvg.createSVGPoint(); point.x = event.clientX; point.y = event.clientY;
+            const localPoint = point.matrixTransform(mapSvg.getScreenCTM().inverse());
+            state.zonePoints.push({x: Math.max(0, Math.min(360, Math.round(localPoint.x))), y: Math.max(0, Math.min(260, Math.round(localPoint.y)))});
+            state.zoneClosed = false; update(); save();
+          }
+          return;
+        }
+        if (mapSvg && state.perks && state.placingPackage) {
+          const mapState = mapGestureStates.get(mapSvg.closest(".hm-map"));
+          if (mapState && Date.now() < mapState.suppressClickUntil) return;
+          if (state.packages.length < 8) {
+            const point = mapSvg.createSVGPoint();
+            point.x = event.clientX;
+            point.y = event.clientY;
+            const localPoint = point.matrixTransform(mapSvg.getScreenCTM().inverse());
+            const x = Math.max(0, Math.min(360, Math.round(localPoint.x)));
+            const y = Math.max(0, Math.min(260, Math.round(localPoint.y)));
+            state.packages.push({ x, y });
+          }
+          update();
+          save();
+          return;
+        }
+        const choice = event.target.closest("[data-choice]");
+        if (choice) {
+          state[choice.dataset.choice] = choice.dataset.value;
+          update();
+          save();
+          return;
+        }
+        const screenButton = event.target.closest("[data-screen]");
+        if (screenButton) { setScreen(screenButton.dataset.screen); return; }
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) return;
+        const action = actionButton.dataset.action;
+        if (action === "create") setScreen("lobby");
+        if (action === "join") {
+          const code = root.querySelector("#hm-join-code").value.trim();
+          const status = root.querySelector("#hm-home-status");
+          if (!code) { status.textContent = "Skriv inn lobbykoden først."; return; }
+          status.textContent = "Demo: kobler til lobby " + code.toUpperCase() + ".";
+          setScreen("lobby");
+        }
+        if (action === "share") {
+          const status = root.querySelector("#hm-share-status");
+          try {
+            await navigator.clipboard.writeText("GJER-482");
+            status.textContent = "Lobbykoden GJER-482 er kopiert.";
+          } catch (_) { status.textContent = "Del lobbykoden: GJER-482"; }
+        }
+        if (action === "quick-demo") {
+          state.quickDemo = true; state.mode = "tag"; state.roundMinutes = 3; state.interval = "always";
+          state.hunters = ["Jonas"]; state.hunterName = "Jonas"; state.outPlayers = []; state.pendingPlayer = null;
+          state.caughtCount = 0; state.resultTitle = ""; state.caught = false; state.warning = false;
+          setScreen("live");
+        }
+        if (action === "start") setScreen("rules");
+        if (action === "begin") {
+          if (root.querySelector("#hm-read-rules").checked) { state.hunters = ["Jonas"]; state.hunterName = "Jonas"; state.outPlayers = []; state.pendingPlayer = null; state.caught = false; state.checkpointProgress = 0; state.resultTitle = ""; setScreen("live"); }
+        }
+        if (action === "tag") {
+          const target = state.players.find(name => name !== state.hunterName && !state.outPlayers.includes(name) && !state.hunters.includes(name));
+          state.pendingPlayer = target || state.players.find(name => name !== state.hunterName && !state.outPlayers.includes(name)) || "Mina";
+          state.caught = true; update(); save();
+        }
+        if (action === "confirm-tag") {
+          const target = state.pendingPlayer;
+          if (target) {
+            state.caughtCount++;
+            if (state.mode === "tag") { state.hunters = [target]; state.hunterName = target; }
+            else if (state.mode === "infection" || state.mode === "checkpoints") { if (!state.hunters.includes(target)) state.hunters.push(target); state.hunterName = state.hunters[state.hunters.length - 1]; }
+            else { state.outPlayers.push(target); }
+            const lastRunner = state.players.find(name => !state.outPlayers.includes(name) && !state.hunters.includes(name));
+            if ((state.mode === "catch" || state.mode === "checkpoints") && !lastRunner) { state.resultTitle = "Jegerlaget vant!"; setScreen("results"); }
+            else { update(); root.querySelector("#hm-live-toast").textContent = target + " bekreftet. " + (state.mode === "tag" ? target + " er nå jeger." : state.mode === "infection" ? target + " ble med på jegerlaget." : target + " er ute."); }
+          }
+          state.pendingPlayer = null; state.caught = false; update(); save();
+        }
+        if (action === "start-zone-edit") { state.editingZone = true; state.zonePoints = []; state.zoneClosed = false; state.placingPackage = false; update(); save(); }
+        if (action === "undo-zone-point") { state.zonePoints.pop(); state.zoneClosed = false; update(); save(); }
+        if (action === "clear-zone") { state.zonePoints = []; state.zoneClosed = false; update(); save(); }
+        if (action === "close-zone") { if (state.zonePoints.length >= 3) state.zoneClosed = true; update(); save(); }
+        if (action === "save-zone") { if (state.zonePoints.length >= 3 && state.zoneClosed) { state.editingZone = false; update(); save(); } }
+        if (action === "start-checkpoint-placement") { state.placingCheckpoints = true; state.checkpoints = []; state.editingZone = false; state.placingPackage = false; update(); save(); }
+        if (action === "undo-checkpoint") { state.checkpoints.pop(); update(); save(); }
+        if (action === "clear-checkpoints") { state.checkpoints = []; update(); save(); }
+        if (action === "finish-checkpoint-placement") { state.placingCheckpoints = false; update(); save(); }
+        if (action === "simulate-checkpoint") { state.checkpointProgress = Math.min(state.checkpointCount, state.checkpointProgress + 1); update(); if (state.checkpointProgress >= state.checkpointCount) { state.resultTitle = "Mina nådde alle kontrollsonene!"; setScreen("results"); } save(); }
+        if (action === "toggle-package-placement") {
+          state.placingPackage = !state.placingPackage;
+          update();
+          save();
+        }
+        if (action === "simulate-package") {
+          const outcomes = [
+            { level: "Ekstrem fordel", effect: "Laget ditt får en ekstra kartvisning." },
+            { level: "Fordel", effect: "Neste kartvisning varer litt lenger." },
+            { level: "Ulempe", effect: "Motstanderlaget får en ekstra kartvisning." },
+            { level: "Ekstrem ulempe", effect: "Motstanderlaget får en lengre kartvisning." }
+          ];
+          state.packageResult = outcomes[Math.floor(Math.random() * outcomes.length)];
+          update();
+          save();
+        }
+        if (action === "close-package") {
+          state.packageResult = null;
+          update();
+          save();
+        }
+        if (action === "gps-warning") {
+          state.warning = !state.warning;
+          update();
+          save();
+        }
+      });
+
+      root.addEventListener("input", event => {
+        const field = event.target;
+        if (field.id === "hm-perks-enabled") state.perks = field.checked;
+        if (field.id === "hm-headstart") state.headstart = field.checked;
+        if (field.id === "hm-headstart-seconds") state.headstartSeconds = Math.max(1, parseInt(field.value || "1", 10));
+        if (field.id === "hm-round-length") state.roundMinutes = Math.max(1, parseInt(field.value || "1", 10));
+        if (field.id === "hm-checkpoint-count") { state.checkpointCount = Math.min(10, Math.max(1, parseInt(field.value || "1", 10))); state.checkpoints = state.checkpoints.slice(0, state.checkpointCount); state.checkpointProgress = Math.min(state.checkpointProgress, state.checkpointCount); }
+        if (field.id === "hm-custom-interval") state.intervalCustom = Math.max(1, parseInt(field.value || "1", 10));
+        if (field.id === "hm-reveal-seconds") state.revealSeconds = Math.min(120, Math.max(1, parseInt(field.value || "1", 10)));
+        if (field.id === "hm-visibility") state.interval = field.value;
+        if (field.id === "hm-read-rules") {
+          root.querySelector("#hm-begin").disabled = !field.checked;
+          return;
+        }
+        update();
+        save();
+      });
+      root.addEventListener("change", event => {
+        if (event.target.id === "hm-visibility") {
+          state.interval = event.target.value;
+          update();
+          save();
+        }
+      });
+      window.addEventListener("openai:set_globals", event => {
+        const saved = event.detail && event.detail.globals && event.detail.globals.widgetState &&
+          event.detail.globals.widgetState.privateContent;
+        if (saved && saved.app === "funrun-full-demo-home-v3") {
+          state = { ...defaults, ...saved.ui };
+          update();
+        }
+      });
+      update();
+      if (state.screen === "live") startPipClock();
+    })();
+  </script>
+</div>
+
+</body>
+</html>
