@@ -1047,6 +1047,7 @@
         const svgNamespace = "http://www.w3.org/2000/svg";
         const renderLayer = (id, yScale) => {
           const layer = root.querySelector("#" + id);
+          if (!layer) return;
           while (layer.firstChild) layer.removeChild(layer.firstChild);
           (state.perks && Array.isArray(state.packages) ? state.packages : []).forEach((point, index) => {
             const marker = document.createElementNS(svgNamespace, "g");
