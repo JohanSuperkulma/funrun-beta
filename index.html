@@ -191,9 +191,21 @@
       border: 1px solid var(--hm-line);
       border-radius: 18px;
       background: var(--hm-map);
-      touch-action: none;
+      touch-action: auto;
     }
+    #funrun-demo-copy .hm-map:not(#hm-map) { touch-action: none; }
     #funrun-demo-copy .hm-map svg { display: block; width: 100%; height: auto; }
+    #funrun-demo-copy .hm-picker-map { width: 100%; height: 330px; background: #e8ece8; touch-action: pan-x pan-y; }
+    #funrun-demo-copy .hm-place-search { display: grid; gap: 7px; margin: 0 0 14px; }
+    #funrun-demo-copy .hm-place-search-row { display: flex; gap: 8px; }
+    #funrun-demo-copy .hm-place-search-row .hm-input { min-width: 0; flex: 1; }
+    #funrun-demo-copy .hm-place-results { display: grid; gap: 6px; }
+    #funrun-demo-copy .hm-place-result { width: 100%; justify-content: flex-start; text-align: left; white-space: normal; }
+    #funrun-demo-copy .hm-map .leaflet-control-attribution { font-size: 9px; }
+    #funrun-demo-copy .hm-map .hm-checkpoint-tooltip, #funrun-demo-copy .hm-map .hm-package-tooltip { width: 21px; height: 21px; padding: 0; border: 0; border-radius: 50%; background: transparent; box-shadow: none; color: #fff; font-weight: 700; line-height: 21px; text-align: center; }
+    #funrun-demo-copy .hm-map .hm-checkpoint-tooltip::before, #funrun-demo-copy .hm-map .hm-package-tooltip::before { display: none; }
+    #funrun-demo-copy .hm-map .hm-checkpoint-tooltip { color: #fff; }
+    #funrun-demo-copy .hm-map .hm-package-tooltip { color: #fff; }
     #funrun-demo-copy .hm-map-legend { position: absolute; z-index: 2; left: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 5px; max-width: calc(100% - 16px); padding: 6px 7px; border: 1px solid color-mix(in oklab, var(--hm-line) 75%, transparent); border-radius: 12px; background: color-mix(in oklab, var(--hm-surface) 94%, transparent); box-shadow: 0 3px 10px color-mix(in oklab, var(--hm-text) 12%, transparent); pointer-events: none; }
     #funrun-demo-copy .hm-map-legend span { display: inline-flex; align-items: center; gap: 4px; color: var(--hm-text); font-size: 10px; line-height: 1.2; white-space: nowrap; }
     #funrun-demo-copy .hm-legend-swatch { width: 10px; height: 10px; border: 1px solid color-mix(in oklab, var(--hm-text) 24%, transparent); border-radius: 3px; }
@@ -582,8 +594,18 @@
 
       <section class="hm-page" data-page="map" hidden>
         <p class="hm-kicker">Lobby · spilleområde</p>
-        <h1>Gjerpen</h1>
-        <p class="hm-sub">Tegn sonen dere skal holde dere innenfor. Trykk og dra kartet for å flytte det, eller bruk to fingre for å zoome.</p>
+        <h1 id="hm-selected-place-title">Gjerpen, Skien</h1>
+        <p class="hm-sub">Søk etter et sted i Norge, og bruk veikartet til å tegne spilleområdet.</p>
+        <div class="hm-place-search">
+          <label class="hm-label" for="hm-place-search-input">Søk sted i Norge</label>
+          <div class="hm-place-search-row">
+            <input class="hm-input" id="hm-place-search-input" type="search" maxlength="100" placeholder="For eksempel Gjerpen eller Skien" autocomplete="off">
+            <button class="hm-button hm-primary" type="button" data-action="search-place" id="hm-place-search-button">Søk</button>
+          </div>
+          <p class="hm-note">Søk sender stedsnavnet til OpenStreetMap. Ikke skriv inn privat adresse.</p>
+          <p class="hm-note" id="hm-place-search-status" role="status" aria-live="polite"></p>
+          <div class="hm-place-results" id="hm-place-search-results" aria-label="Søkeresultater"></div>
+        </div>
         <div class="hm-stack" style="margin-bottom:12px">
           <button class="hm-button hm-small" type="button" id="hm-start-zone-edit" data-action="start-zone-edit">Lag eget spilleområde</button>
           <div id="hm-zone-controls" class="hm-stack" hidden>
@@ -606,54 +628,11 @@
           <div class="hm-row"><span class="hm-note" id="hm-package-count" aria-live="polite">0 pakker plassert</span><button class="hm-button hm-small" type="button" id="hm-place-package-button" data-action="toggle-package-placement">Legg ut pakker</button></div>
           <p class="hm-note" id="hm-package-mode" aria-live="polite" hidden>Trykk på kartet for å plassere pakker. Trykk «Ferdig» når du er klar.</p>
         </div>
-        <div class="hm-map" id="hm-map">
-          <svg id="hm-package-map" viewBox="0 0 360 260" role="img" aria-label="Kartskisse over Gjerpen skole og Gjerpen kirke">
-            <rect width="360" height="260" fill="var(--hm-map)"/>
-            <path d="M0 0h112l27 50-16 50-66 5L0 72zM251 179l43-42 66 17v106H238z" fill="var(--hm-park)"/>
-            <path d="M332 0h28v114l-33-13-10-44z" fill="var(--hm-water)"/>
-            <path d="M29 109c15-9 33-8 48 3l-4 37-24 18-27-19z" fill="var(--hm-forest)" opacity=".82" aria-label="Skog inne i spilleområdet"/>
-            <g fill="var(--hm-forest-deep)" aria-hidden="true"><path d="M34 141l8-16 8 16zM41 149v-8h2v8z"/><path d="M48 136l9-18 9 18zM56 146v-10h2v10z"/><path d="M64 145l8-16 8 16zM71 153v-8h2v8z"/></g>
-            <path d="M96 181c13-5 18 10 32 7s12 8 21 8" fill="none" stroke="var(--hm-water)" stroke-width="13" stroke-linecap="round" aria-label="Vann inne i spilleområdet"/>
-            <path d="M96 181c13-5 18 10 32 7s12 8 21 8" fill="none" stroke="var(--hm-water-line)" stroke-width="2" stroke-linecap="round"/>
-            <path d="M-20 170c65-48 121 39 187-2s106-49 213-4" fill="none" stroke="var(--hm-road-edge)" stroke-width="21"/>
-            <path d="M-20 170c65-48 121 39 187-2s106-49 213-4" fill="none" stroke="var(--hm-road)" stroke-width="14"/>
-            <path d="M139-20c-17 49 10 92 17 126s-22 77 2 176" fill="none" stroke="var(--hm-road-edge)" stroke-width="17"/>
-            <path d="M139-20c-17 49 10 92 17 126s-22 77 2 176" fill="none" stroke="var(--hm-road)" stroke-width="10"/>
-            <path d="M278-20c-18 54-4 91 13 127s-6 89-47 167" fill="none" stroke="var(--hm-road-edge)" stroke-width="16"/>
-            <path d="M278-20c-18 54-4 91 13 127s-6 89-47 167" fill="none" stroke="var(--hm-road)" stroke-width="10"/>
-            <g fill="var(--hm-building)" opacity=".82" aria-label="Hus og bygninger">
-              <rect x="31" y="54" width="18" height="12" rx="2"/><rect x="53" y="48" width="16" height="11" rx="2"/>
-              <rect x="84" y="44" width="18" height="12" rx="2"/><rect x="108" y="53" width="17" height="12" rx="2"/>
-              <rect x="228" y="59" width="18" height="12" rx="2"/><rect x="251" y="68" width="16" height="11" rx="2"/>
-              <rect x="276" y="84" width="19" height="12" rx="2"/><rect x="299" y="94" width="17" height="12" rx="2"/>
-              <rect x="33" y="184" width="17" height="12" rx="2"/><rect x="55" y="192" width="19" height="12" rx="2"/>
-              <rect x="238" y="197" width="17" height="12" rx="2"/><rect x="260" y="207" width="19" height="12" rx="2"/>
-            </g>
-            <g fill="var(--hm-building)" stroke="var(--hm-building-edge)" stroke-width="2" aria-label="Bygninger inne i spilleområdet"><rect x="117" y="105" width="20" height="14" rx="2"/><rect x="143" y="111" width="18" height="13" rx="2"/><rect x="128" y="130" width="21" height="14" rx="2"/><path d="M123 110h8M149 116h7M134 135h9" fill="none" stroke="var(--hm-building-edge)" stroke-width="1.5"/></g>
-            <polygon id="hm-zone-editor" points="" fill="color-mix(in oklab, var(--hm-green) 5%, transparent)" stroke="var(--hm-green)" stroke-width="3" stroke-dasharray="8 6" aria-label="Spilleområde"/><g id="hm-zone-editor-points" aria-hidden="true" pointer-events="none"></g><g id="hm-checkpoint-map-layer" aria-label="Kontrollsoner"></g>
-            <circle cx="124" cy="91" r="6" fill="var(--hm-orange)"/><text x="135" y="95">Gjerpen skole</text>
-            <circle cx="207" cy="158" r="6" fill="var(--hm-orange)"/><text x="218" y="162">Gjerpen kirke</text>
-            <g class="hm-player-pin">
-              <g class="hm-approx-mark"><circle cx="79" cy="148" r="19" fill="color-mix(in oklab, var(--hm-red) 20%, transparent)" stroke="var(--hm-red)" stroke-dasharray="4 4"/><circle cx="79" cy="148" r="5" fill="var(--hm-red)"/></g>
-              <g class="hm-exact-mark"><circle cx="79" cy="148" r="7" fill="var(--hm-red)" stroke="var(--hm-surface)" stroke-width="2"/></g>
-              <text class="hm-name" x="88" y="143">Jonas</text>
-            </g>
-            <g class="hm-player-pin">
-              <g class="hm-approx-mark"><circle cx="159" cy="198" r="19" fill="color-mix(in oklab, var(--hm-green) 20%, transparent)" stroke="var(--hm-green)" stroke-dasharray="4 4"/><circle cx="159" cy="198" r="5" fill="var(--hm-green)"/></g>
-              <g class="hm-exact-mark"><circle cx="159" cy="198" r="7" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/></g>
-              <text class="hm-name" x="168" y="194">Mina</text>
-            </g>
-            <g class="hm-player-pin">
-              <g class="hm-approx-mark"><circle cx="186" cy="118" r="19" fill="color-mix(in oklab, var(--hm-green) 20%, transparent)" stroke="var(--hm-green)" stroke-dasharray="4 4"/><circle cx="186" cy="118" r="5" fill="var(--hm-green)"/></g>
-              <g class="hm-exact-mark"><circle cx="186" cy="118" r="7" fill="var(--hm-green)" stroke="var(--hm-surface)" stroke-width="2"/></g>
-              <text class="hm-name" x="195" y="114">Emil</text>
-            </g>
-            <text x="18" y="244" style="font-size:11px">Kartskisse · ikke live GPS</text>
-            <g id="hm-package-layer" aria-label="Pakker plassert på kartet"></g>
-          </svg>
-          <div class="hm-map-legend" aria-label="Kartforklaring"><span><i class="hm-legend-swatch is-forest" aria-hidden="true"></i>Skog</span><span><i class="hm-legend-swatch is-building" aria-hidden="true"></i>Bygninger</span><span><i class="hm-legend-swatch is-water" aria-hidden="true"></i>Vann</span><span class="hm-checkpoint-legend" hidden><i class="hm-legend-swatch is-control" aria-hidden="true"></i>Kontrollsone</span></div>
-          <div class="hm-map-caption"><span>Område rundt Gjerpen</span><span>Varsel på</span></div>
+        <div class="hm-map" id="hm-map" aria-label="Veikart over Norge">
+          <div id="hm-picker-map" class="hm-picker-map" aria-label="Kart over Norge med mulighet til å zoome og flytte kartet"></div>
         </div>
+        <div class="hm-map-caption"><span id="hm-map-caption-place">Gjerpen, Skien</span><span>Veikart · OpenStreetMap</span></div>
+        <p class="hm-note" id="hm-map-data-note">Veier, bygninger, skog og vann vises fra kartdataene.</p>
         <div id="hm-gps-warning" class="hm-alert" role="status" aria-live="polite" hidden>Du nærmer deg grensen for spilleområdet.</div>
         <div class="hm-stack" style="margin-top:12px">
           <button class="hm-button" type="button" data-action="gps-warning">Prøv GPS-varsel</button>
@@ -787,6 +766,9 @@
         screen: "home", mode: "tag", headstart: false, headstartSeconds: 60,
         interval: "5", intervalCustom: 7, revealSeconds: 15, labels: "names",
         precision: "approx", roundMinutes: 30, outside: "out", perks: false, packages: [], placingPackage: false, packageResult: null, warning: false, caught: false,
+        mapPlaceName: "Gjerpen, Skien", mapLat: 59.197, mapLng: 9.608,
+        mapZonePoints: [{lat:59.205,lng:9.593},{lat:59.202,lng:9.622},{lat:59.194,lng:9.635},{lat:59.184,lng:9.626},{lat:59.179,lng:9.605},{lat:59.185,lng:9.585},{lat:59.197,lng:9.580}], mapZoneClosed: true,
+        mapCheckpoints: [{lat:59.199,lng:9.603},{lat:59.189,lng:9.619},{lat:59.185,lng:9.594}], mapPackages: [],
         quickDemo: false, players: ["Jonas", "Mina", "Emil"], hunters: ["Jonas"], outPlayers: [], hunterName: "Jonas", pendingPlayer: null, caughtCount: 0, resultTitle: "",
         zonePoints: [{x:54,y:78},{x:113,y:61},{x:192,y:70},{x:258,y:108},{x:265,y:158},{x:231,y:205},{x:175,y:226},{x:117,y:212},{x:70,y:180},{x:42,y:127}], zoneClosed: true, editingZone: false,
         checkpointCount: 3, checkpointOrder: "any", checkpoints: [{x:82,y:116},{x:174,y:106},{x:225,y:174}], placingCheckpoints: false, checkpointProgress: 0
@@ -867,6 +849,148 @@
           const quality = accuracy <= 20 ? "god" : accuracy <= 60 ? "middels" : "svak";
           gpsStatus("GPS aktiv · " + quality + " nøyaktighet (ca. " + Math.round(accuracy) + " m). Bare denne telefonen ser posisjonen.");
         }, gpsError, { enableHighAccuracy: true, maximumAge: 2000, timeout: 20000 });
+      };
+      const norwayMapBounds = window.L ? window.L.latLngBounds([[57.8, 3.5], [71.5, 31.8]]) : null;
+      let norwayMap = null;
+      let norwayMapOverlays = null;
+      let placeSearchResults = [];
+      let lastPlaceSearchAt = 0;
+      let placeSearchInProgress = false;
+      const selectedMapPoint = () => [Number(state.mapLat), Number(state.mapLng)];
+      const renderNorwayMapLayers = () => {
+        if (!norwayMap || !norwayMapOverlays || !window.L) return;
+        norwayMapOverlays.clearLayers();
+        const zonePoints = Array.isArray(state.mapZonePoints) ? state.mapZonePoints.filter(point => Number.isFinite(Number(point.lat)) && Number.isFinite(Number(point.lng))).map(point => [Number(point.lat), Number(point.lng)]) : [];
+        if (zonePoints.length >= 2) {
+          const style = { color: "#48a66c", weight: 3, opacity: 0.95, dashArray: state.mapZoneClosed ? null : "7 7", fillColor: "#83d4a0", fillOpacity: state.mapZoneClosed ? 0.12 : 0.04 };
+          if (state.mapZoneClosed && zonePoints.length >= 3) window.L.polygon(zonePoints, style).addTo(norwayMapOverlays);
+          else window.L.polyline(zonePoints, style).addTo(norwayMapOverlays);
+          zonePoints.forEach(point => window.L.circleMarker(point, { radius: 4, color: "#fff", weight: 2, fillColor: "#286b48", fillOpacity: 1 }).addTo(norwayMapOverlays));
+        }
+        (Array.isArray(state.mapCheckpoints) ? state.mapCheckpoints.slice(0, state.checkpointCount) : []).forEach((point, index) => {
+          window.L.circleMarker([Number(point.lat), Number(point.lng)], { radius: 10, color: "#fff", weight: 2, fillColor: "#7654a7", fillOpacity: 0.95 }).addTo(norwayMapOverlays)
+            .bindTooltip(String(index + 1), { permanent: true, direction: "center", className: "hm-checkpoint-tooltip" });
+        });
+        (state.perks && Array.isArray(state.mapPackages) ? state.mapPackages.slice(0, 8) : []).forEach((point, index) => {
+          window.L.circleMarker([Number(point.lat), Number(point.lng)], { radius: 9, color: "#fff", weight: 2, fillColor: "#e98a45", fillOpacity: 1 }).addTo(norwayMapOverlays)
+            .bindTooltip(String(index + 1), { permanent: true, direction: "center", className: "hm-package-tooltip" });
+        });
+        const selected = selectedMapPoint();
+        if (selected.every(Number.isFinite)) window.L.circleMarker(selected, { radius: 7, color: "#fff", weight: 2, fillColor: "#1685f8", fillOpacity: 1 }).addTo(norwayMapOverlays);
+      };
+      const initNorwayMap = () => {
+        if (!window.L) {
+          root.querySelector("#hm-place-search-status").textContent = "Kartet kunne ikke lastes. Sjekk internettforbindelsen.";
+          return;
+        }
+        if (norwayMap) {
+          window.requestAnimationFrame(() => norwayMap && norwayMap.invalidateSize());
+          return;
+        }
+        const mapElement = root.querySelector("#hm-picker-map");
+        norwayMap = window.L.map(mapElement, {
+          zoomControl: true,
+          minZoom: 5,
+          maxZoom: 19,
+          maxBounds: norwayMapBounds,
+          maxBoundsViscosity: 1,
+          worldCopyJump: false
+        }).setView(selectedMapPoint(), 13);
+        window.L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          minZoom: 5,
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(norwayMap);
+        norwayMapOverlays = window.L.layerGroup().addTo(norwayMap);
+        norwayMap.on("click", event => {
+          const point = { lat: Number(event.latlng.lat.toFixed(6)), lng: Number(event.latlng.lng.toFixed(6)) };
+          if (!norwayMapBounds.contains([point.lat, point.lng])) {
+            root.querySelector("#hm-place-search-status").textContent = "Velg et punkt innenfor Norge.";
+            return;
+          }
+          if (state.editingZone) {
+            if (state.mapZonePoints.length < 24) { state.mapZonePoints.push(point); state.mapZoneClosed = false; }
+          } else if (state.placingCheckpoints) {
+            if (state.mapCheckpoints.length < state.checkpointCount) state.mapCheckpoints.push(point);
+          } else if (state.perks && state.placingPackage) {
+            if (state.mapPackages.length < 8) state.mapPackages.push(point);
+          } else {
+            state.mapLat = point.lat;
+            state.mapLng = point.lng;
+            state.mapPlaceName = "Valgt punkt i Norge";
+            root.querySelector("#hm-place-search-status").textContent = "Kartpunkt valgt. Du kan også søke på et stedsnavn.";
+          }
+          update();
+          save();
+        });
+        renderNorwayMapLayers();
+        window.requestAnimationFrame(() => norwayMap && norwayMap.invalidateSize());
+      };
+      const renderPlaceSearchResults = () => {
+        const list = root.querySelector("#hm-place-search-results");
+        list.replaceChildren();
+        placeSearchResults.forEach((place, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "hm-button hm-place-result hm-small";
+          button.dataset.placeIndex = String(index);
+          button.textContent = place.label;
+          list.appendChild(button);
+        });
+      };
+      const chooseNorwegianPlace = place => {
+        state.mapPlaceName = place.label;
+        state.mapLat = place.lat;
+        state.mapLng = place.lng;
+        root.querySelector("#hm-place-search-input").value = place.label;
+        root.querySelector("#hm-place-search-status").textContent = "Kartet viser " + place.label + ".";
+        placeSearchResults = [];
+        renderPlaceSearchResults();
+        update();
+        if (norwayMap) norwayMap.setView([place.lat, place.lng], 14);
+        save();
+      };
+      const searchNorwegianPlaces = async () => {
+        const input = root.querySelector("#hm-place-search-input");
+        const button = root.querySelector("#hm-place-search-button");
+        const status = root.querySelector("#hm-place-search-status");
+        const query = input.value.trim();
+        if (query.length < 2) { status.textContent = "Skriv minst to bokstaver for å søke."; return; }
+        if (placeSearchInProgress) return;
+        placeSearchInProgress = true;
+        button.disabled = true;
+        status.textContent = "Søker etter steder i Norge …";
+        placeSearchResults = [];
+        renderPlaceSearchResults();
+        try {
+          const waitMs = Math.max(0, 1100 - (Date.now() - lastPlaceSearchAt));
+          if (waitMs) await new Promise(resolve => window.setTimeout(resolve, waitMs));
+          lastPlaceSearchAt = Date.now();
+          const url = new URL("https://nominatim.openstreetmap.org/search");
+          url.search = new URLSearchParams({ format: "jsonv2", countrycodes: "no", addressdetails: "1", limit: "5", "accept-language": "no", q: query }).toString();
+          const response = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+          if (!response.ok) throw new Error("search");
+          const results = await response.json();
+          placeSearchResults = results.filter(result => {
+            const point = [Number(result.lat), Number(result.lon)];
+            return result.address && result.address.country_code === "no" && point.every(Number.isFinite) && (!norwayMapBounds || norwayMapBounds.contains(point));
+          }).slice(0, 5).map(result => ({
+            label: String(result.display_name || result.name || "Sted i Norge").split(",").slice(0, 3).map(part => part.trim()).join(", "),
+            lat: Number(result.lat),
+            lng: Number(result.lon)
+          }));
+          if (placeSearchResults.length) {
+            status.textContent = "Velg et sted fra treffene:";
+            renderPlaceSearchResults();
+          } else {
+            status.textContent = "Fant ingen norske steder. Prøv et annet stedsnavn.";
+          }
+        } catch (_) {
+          status.textContent = "Stedsøket svarte ikke. Sjekk internett og prøv igjen.";
+        } finally {
+          placeSearchInProgress = false;
+          button.disabled = false;
+        }
       };
       const screenNames = ["home", "how", "lobby", "settings", "map", "rules", "live", "results"];
       const modeLabels = { tag: "Sisten", infection: "Infection", catch: "Catch", checkpoints: "Kontrollpunkter" };
@@ -1028,6 +1152,9 @@
       };
       const update = () => {
         root.querySelectorAll(".hm-page").forEach(page => { page.hidden = page.dataset.page !== state.screen; });
+        root.querySelector("#hm-selected-place-title").textContent = state.mapPlaceName || "Velg et sted i Norge";
+        root.querySelector("#hm-map-caption-place").textContent = state.mapPlaceName || "Norge";
+        root.querySelector("#hm-map-data-note").textContent = "Veier, bygninger, skog og vann vises fra OpenStreetMap der kartdata finnes.";
         const nav = root.querySelector(".hm-nav");
         const inGame = state.screen === "live";
         root.querySelector(".hm-phone").classList.toggle("hm-in-game", inGame);
@@ -1044,12 +1171,12 @@
         root.querySelector("#hm-checkpoint-settings").hidden = state.mode !== "checkpoints";
         root.querySelector("#hm-checkpoint-count").value = state.checkpointCount;
         root.querySelector("#hm-checkpoint-map-tools").hidden = state.mode !== "checkpoints" && !state.placingCheckpoints;
-        root.querySelector("#hm-checkpoint-count-label").textContent = state.checkpoints.length + " av " + state.checkpointCount + " kontrollsoner plassert";
+        root.querySelector("#hm-checkpoint-count-label").textContent = state.mapCheckpoints.length + " av " + state.checkpointCount + " kontrollsoner plassert";
         root.querySelector("#hm-place-checkpoints").hidden = state.placingCheckpoints;
         root.querySelector("#hm-checkpoint-map-status").hidden = !state.placingCheckpoints;
         root.querySelector("#hm-checkpoint-edit-actions").hidden = !state.placingCheckpoints;
-        root.querySelector('[data-action="finish-checkpoint-placement"]').disabled = state.checkpoints.length !== state.checkpointCount;
-        root.querySelector("#hm-checkpoint-map-status").textContent = "Trykk på kartet for å plassere kontrollsoner (" + state.checkpoints.length + "/" + state.checkpointCount + ").";
+        root.querySelector('[data-action="finish-checkpoint-placement"]').disabled = state.mapCheckpoints.length !== state.checkpointCount;
+        root.querySelector("#hm-checkpoint-map-status").textContent = "Trykk på kartet for å plassere kontrollsoner (" + state.mapCheckpoints.length + "/" + state.checkpointCount + ").";
         root.querySelectorAll(".hm-checkpoint-legend").forEach(legend => legend.hidden = state.mode !== "checkpoints");
         root.querySelector("#hm-checkpoint-rule").hidden = state.mode !== "checkpoints";
         root.querySelector("#hm-checkpoint-rule-order").textContent = state.checkpointOrder === "ordered" ? "i nummerert rekkefølge" : "i valgfri rekkefølge";
@@ -1076,26 +1203,27 @@
         root.querySelector("#hm-open-package-map").hidden = !state.perks;
         root.querySelector("#hm-package-tools").hidden = !state.perks;
         root.querySelector("#hm-package-off-note").hidden = state.perks;
-        root.querySelector("#hm-package-count").textContent = state.packages.length + (state.packages.length === 1 ? " pakke plassert" : " pakker plassert");
+        root.querySelector("#hm-package-count").textContent = state.mapPackages.length + (state.mapPackages.length === 1 ? " pakke plassert" : " pakker plassert");
         root.querySelector("#hm-package-mode").hidden = !state.placingPackage;
         root.querySelector("#hm-start-zone-edit").hidden = state.editingZone;
         root.querySelector("#hm-zone-controls").hidden = !state.editingZone;
         const zoneStatus = root.querySelector("#hm-zone-status");
-        if (state.editingZone) zoneStatus.textContent = state.zoneClosed ? "Området er lukket · " + state.zonePoints.length + " punkter. Lagre når du er fornøyd." : "Trykk på kartet for å sette punkter · minst 3 kreves (" + state.zonePoints.length + " nå).";
-        else zoneStatus.textContent = "Spilleområdet har " + state.zonePoints.length + " punkter.";
-        root.querySelector("#hm-undo-zone-point").disabled = !state.zonePoints.length;
-        root.querySelector("#hm-clear-zone").disabled = !state.zonePoints.length;
-        root.querySelector("#hm-close-zone").disabled = state.zonePoints.length < 3 || state.zoneClosed;
-        root.querySelector("#hm-save-zone").disabled = !state.zoneClosed || state.zonePoints.length < 3;
+        if (state.editingZone) zoneStatus.textContent = state.mapZoneClosed ? "Området er lukket · " + state.mapZonePoints.length + " punkter. Lagre når du er fornøyd." : "Trykk på kartet for å sette punkter · minst 3 kreves (" + state.mapZonePoints.length + " nå).";
+        else zoneStatus.textContent = "Spilleområdet har " + state.mapZonePoints.length + " punkter.";
+        root.querySelector("#hm-undo-zone-point").disabled = !state.mapZonePoints.length;
+        root.querySelector("#hm-clear-zone").disabled = !state.mapZonePoints.length;
+        root.querySelector("#hm-close-zone").disabled = state.mapZonePoints.length < 3 || state.mapZoneClosed;
+        root.querySelector("#hm-save-zone").disabled = !state.mapZoneClosed || state.mapZonePoints.length < 3;
         root.querySelector("#hm-place-package-button").textContent = state.placingPackage ? "Ferdig" : "Legg ut pakker";
         const hasOpenPackage = Boolean(state.packageResult);
-        root.querySelector("#hm-package-trigger").hidden = !state.perks || !state.packages.length || state.screen !== "live" || hasOpenPackage;
+        root.querySelector("#hm-package-trigger").hidden = !state.perks || !state.mapPackages.length || state.screen !== "live" || hasOpenPackage;
         root.querySelector("#hm-package-result").hidden = !hasOpenPackage;
         root.querySelector("#hm-package-level").textContent = hasOpenPackage ? state.packageResult.level : "";
         root.querySelector("#hm-package-effect").textContent = hasOpenPackage ? state.packageResult.effect : "";
         renderPackageMarkers();
         renderZone();
         renderCheckpoints();
+        renderNorwayMapLayers();
         const headstart = root.querySelector("#hm-headstart");
         headstart.checked = state.headstart;
         const headstartInput = root.querySelector("#hm-headstart-seconds");
@@ -1132,6 +1260,7 @@
         if (screen !== "map") { state.placingPackage = false; state.placingCheckpoints = false; state.editingZone = false; }
         if (screen === "live") state.packageResult = null;
         update();
+        if (screen === "map") window.requestAnimationFrame(() => initNorwayMap());
         if (screen === "live") { startPipClock(); startRoundTimer(); startDemoSimulation(); }
         else { stopPipClock(); stopRoundTimer(); stopDemoSimulation(); }
         save();
@@ -1290,6 +1419,12 @@
           save();
           return;
         }
+        const placeChoice = event.target.closest("[data-place-index]");
+        if (placeChoice) {
+          const place = placeSearchResults[Number(placeChoice.dataset.placeIndex)];
+          if (place) chooseNorwegianPlace(place);
+          return;
+        }
         const choice = event.target.closest("[data-choice]");
         if (choice) {
           state[choice.dataset.choice] = choice.dataset.value;
@@ -1302,6 +1437,7 @@
         const actionButton = event.target.closest("[data-action]");
         if (!actionButton) return;
         const action = actionButton.dataset.action;
+        if (action === "search-place") { await searchNorwegianPlaces(); return; }
         if (action === "gps-toggle") {
           if (gpsWatchId !== null) stopGps();
           else startGps();
@@ -1350,14 +1486,14 @@
           }
           state.pendingPlayer = null; state.caught = false; update(); save();
         }
-        if (action === "start-zone-edit") { state.editingZone = true; state.zonePoints = []; state.zoneClosed = false; state.placingPackage = false; update(); save(); }
-        if (action === "undo-zone-point") { state.zonePoints.pop(); state.zoneClosed = false; update(); save(); }
-        if (action === "clear-zone") { state.zonePoints = []; state.zoneClosed = false; update(); save(); }
-        if (action === "close-zone") { if (state.zonePoints.length >= 3) state.zoneClosed = true; update(); save(); }
-        if (action === "save-zone") { if (state.zonePoints.length >= 3 && state.zoneClosed) { state.editingZone = false; update(); save(); } }
-        if (action === "start-checkpoint-placement") { state.placingCheckpoints = true; state.checkpoints = []; state.editingZone = false; state.placingPackage = false; update(); save(); }
-        if (action === "undo-checkpoint") { state.checkpoints.pop(); update(); save(); }
-        if (action === "clear-checkpoints") { state.checkpoints = []; update(); save(); }
+        if (action === "start-zone-edit") { state.editingZone = true; state.mapZonePoints = []; state.mapZoneClosed = false; state.placingCheckpoints = false; state.placingPackage = false; update(); save(); }
+        if (action === "undo-zone-point") { state.mapZonePoints.pop(); state.mapZoneClosed = false; update(); save(); }
+        if (action === "clear-zone") { state.mapZonePoints = []; state.mapZoneClosed = false; update(); save(); }
+        if (action === "close-zone") { if (state.mapZonePoints.length >= 3) state.mapZoneClosed = true; update(); save(); }
+        if (action === "save-zone") { if (state.mapZonePoints.length >= 3 && state.mapZoneClosed) { state.editingZone = false; update(); save(); } }
+        if (action === "start-checkpoint-placement") { state.placingCheckpoints = true; state.mapCheckpoints = []; state.editingZone = false; state.placingPackage = false; update(); save(); }
+        if (action === "undo-checkpoint") { state.mapCheckpoints.pop(); update(); save(); }
+        if (action === "clear-checkpoints") { state.mapCheckpoints = []; update(); save(); }
         if (action === "finish-checkpoint-placement") { state.placingCheckpoints = false; update(); save(); }
         if (action === "simulate-checkpoint") { state.checkpointProgress = Math.min(state.checkpointCount, state.checkpointProgress + 1); update(); if (state.checkpointProgress >= state.checkpointCount) { state.resultTitle = "Mina nådde alle kontrollsonene!"; setScreen("results"); } save(); }
         if (action === "toggle-package-placement") {
@@ -1388,13 +1524,25 @@
         }
       });
 
+      root.addEventListener("keydown", event => {
+        if (event.key === "Enter" && event.target.id === "hm-place-search-input") {
+          event.preventDefault();
+          searchNorwegianPlaces();
+        }
+      });
       root.addEventListener("input", event => {
         const field = event.target;
+        if (field.id === "hm-place-search-input") {
+          placeSearchResults = [];
+          renderPlaceSearchResults();
+          root.querySelector("#hm-place-search-status").textContent = "";
+          return;
+        }
         if (field.id === "hm-perks-enabled") state.perks = field.checked;
         if (field.id === "hm-headstart") state.headstart = field.checked;
         if (field.id === "hm-headstart-seconds") state.headstartSeconds = Math.max(1, parseInt(field.value || "1", 10));
         if (field.id === "hm-round-length") state.roundMinutes = Math.max(1, parseInt(field.value || "1", 10));
-        if (field.id === "hm-checkpoint-count") { state.checkpointCount = Math.min(10, Math.max(1, parseInt(field.value || "1", 10))); state.checkpoints = state.checkpoints.slice(0, state.checkpointCount); state.checkpointProgress = Math.min(state.checkpointProgress, state.checkpointCount); }
+        if (field.id === "hm-checkpoint-count") { state.checkpointCount = Math.min(10, Math.max(1, parseInt(field.value || "1", 10))); state.checkpoints = state.checkpoints.slice(0, state.checkpointCount); state.mapCheckpoints = state.mapCheckpoints.slice(0, state.checkpointCount); state.checkpointProgress = Math.min(state.checkpointProgress, state.checkpointCount); }
         if (field.id === "hm-custom-interval") state.intervalCustom = Math.max(1, parseInt(field.value || "1", 10));
         if (field.id === "hm-reveal-seconds") state.revealSeconds = Math.min(120, Math.max(1, parseInt(field.value || "1", 10)));
         if (field.id === "hm-visibility") state.interval = field.value;
@@ -1422,6 +1570,7 @@
       });
       update();
       if (state.screen === "live") startPipClock();
+      if (state.screen === "map") window.requestAnimationFrame(() => initNorwayMap());
     })();
   </script>
 </div>
