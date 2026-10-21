@@ -1,0 +1,45 @@
+{
+  "rules": {
+    "rooms": {
+      "$code": {
+        "meta": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+          ".write": "auth != null && ((!data.exists() && newData.child('hostUid').val() === auth.uid) || (data.exists() && data.child('hostUid').val() === auth.uid && newData.child('hostUid').val() === auth.uid))"
+        },
+        "settings": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('rooms').child($code).child('meta').child('hostUid').val() === auth.uid"
+        },
+        "players": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($code).child('meta').exists() && (!data.exists() || data.child('uid').val() === auth.uid)",
+            ".validate": "newData.hasChildren(['uid', 'name']) && newData.child('uid').val() === auth.uid && newData.child('name').isString() && newData.child('name').val().length <= 24"
+          }
+        },
+        "roles": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('rooms').child($code).child('meta').child('hostUid').val() === auth.uid"
+        },
+        "game": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+          ".write": "auth != null && root.child('rooms').child($code).child('meta').child('hostUid').val() === auth.uid"
+        },
+        "positions": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists() && root.child('rooms').child($code).child('roles').child(auth.uid).val() === 'hunter' && root.child('rooms').child($code).child('game').child('revealUntil').val() > now",
+          "$uid": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid && root.child('rooms').child($code).child('players').child(auth.uid).exists() && root.child('rooms').child($code).child('game').child('phase').val() === 'live'",
+            ".validate": "newData.hasChildren(['lat', 'lng', 'updatedAt']) && newData.child('lat').isNumber() && newData.child('lat').val() >= -90 && newData.child('lat').val() <= 90 && newData.child('lng').isNumber() && newData.child('lng').val() >= -180 && newData.child('lng').val() <= 180"
+          }
+        },
+        "tagRequests": {
+          ".read": "auth != null && root.child('rooms').child($code).child('players').child(auth.uid).exists()",
+          "$requestId": {
+            ".write": "auth != null && ((!data.exists() && newData.child('hunterUid').val() === auth.uid && root.child('rooms').child($code).child('roles').child(auth.uid).val() === 'hunter' && root.child('rooms').child($code).child('roles').child(newData.child('targetUid').val()).val() === 'runner') || (data.child('targetUid').val() === auth.uid && data.child('confirmed').val() === false && newData.child('confirmed').val() === true && newData.child('targetUid').val() === data.child('targetUid').val() && newData.child('hunterUid').val() === data.child('hunterUid').val()) || (root.child('rooms').child($code).child('meta').child('hostUid').val() === auth.uid && data.child('confirmed').val() === true && newData.child('confirmed').val() === true && newData.child('targetUid').val() === data.child('targetUid').val() && newData.child('hunterUid').val() === data.child('hunterUid').val()))"
+          }
+        }
+      }
+    }
+  }
+}
