@@ -438,11 +438,9 @@ if (!configured) {
     const button=$("#start-round");
     button.disabled=true;
     try{
-      const savedZone=room?.game_options?.zone;
-      if(settingsDirty||!Array.isArray(savedZone)||savedZone.length!==gameOptions.zone.length) {
-        setStatus("Lagrer kartet og starter runden …");
-        await persistSettings();
-      }
+      setStatus("Lagrer rundeoppsettet og starter …");
+      await persistSettings();
+      button.disabled=true;
       await callRpc("funrun_start_round",{p_room_id:roomId});
       await refreshRoom();
       setStatus("Runden har startet! Trykk Start GPS for å dele posisjonen din.");
