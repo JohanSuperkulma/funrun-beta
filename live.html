@@ -40,6 +40,9 @@
     .code { color:var(--green); font-size:28px; font-weight:850; letter-spacing:.12em; }
     .tabs { display:flex; gap:8px; }
     .tabs button.active { border-color:var(--green); background:#314c38; }
+    .auth-methods { display:flex; gap:8px; margin:12px 0; }
+    .auth-methods button { flex:1; }
+    .auth-methods button.active { border-color:var(--green); background:#314c38; }
     .players { display:grid; gap:6px; padding:0; list-style:none; }
     .players li { display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; background:#142018; }
     .player-state { color:var(--muted); font-size:13px; }
@@ -85,6 +88,10 @@
     <p class="muted">Lag en gjestekonto på telefonen din, eller bruk e-post.</p>
     <form id="guest-form"><label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label><button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button><p class="note">Gjestekontoen hører til denne enheten. Ikke logg ut eller slett nettleserdata hvis du vil beholde den.</p></form>
     <p class="note">Eller bruk e-post.</p>
+    <div class="auth-methods" role="tablist" aria-label="Velg innlogging">
+      <button class="active" id="email-auth-tab" type="button" role="tab" aria-selected="true">E-post</button>
+      <button id="phone-auth-tab" type="button" role="tab" aria-selected="false">Telefon</button>
+    </div>
     <form id="auth-form">
       <input id="auth-mode" type="hidden" value="login">
       <label id="display-name-field" hidden>Visningsnavn<input id="display-name" maxlength="24" minlength="2" autocomplete="nickname"></label>
@@ -93,8 +100,22 @@
       <button class="primary" id="auth-submit" type="submit">Logg inn</button>
       <button class="ghost" id="toggle-auth" type="button">Lag en ny bruker</button>
     </form>
+    <section id="phone-auth-panel" hidden>
+      <form id="phone-form">
+        <label>Visningsnavn<input id="phone-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label>
+        <label>Telefonnummer<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+47 123 45 678" maxlength="24" required></label>
+        <p class="note">Skriv norsk nummer eller bruk landskode, for eksempel +47. SMS kan koste penger.</p>
+        <button class="primary" type="submit">Send SMS-kode</button>
+      </form>
+      <form id="phone-verify-form" hidden>
+        <p class="muted" id="phone-sent-to"></p>
+        <label>Engangskode<input id="phone-otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6 sifre" required></label>
+        <button class="primary" type="submit">Bekreft kode</button>
+        <button id="change-phone" type="button">Bruk et annet nummer</button>
+      </form>
+    </section>
   </section>
-  <p class="note" id="setup-note" hidden>FunRun trenger en databaseoppdatering før nye lobbyer, pakker og GPS-kart kan virke. Åpne Supabase → SQL Editor, lim inn innholdet i <code>supabase-upgrade.sql</code>, og trykk Run én gang.</p>
+  <p class="note" id="setup-note" hidden>FunRun trenger en databaseoppdatering før nye lobbyer, pakker og GPS-kart kan virke. Åpne Supabase → SQL Editor, lim inn innholdet i <a href="https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-upgrade.sql" target="_blank" rel="noopener">denne SQL-filen</a>, og trykk Run én gang.</p>
   <section id="app-view" hidden>
     <div class="row card"><span>Hei, <strong id="signed-in-as"></strong></span><button class="ghost" id="sign-out" type="button" style="width:auto">Logg ut</button></div>
     <section class="card" id="home-view" hidden>

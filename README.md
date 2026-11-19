@@ -5,6 +5,7 @@ FunRun is a mobile-first web app for GPS-based tag games. The main page opens th
 ## Current play features
 
 - Create or join a lobby with an eight-character code.
+- Guest and email login, with optional phone login if an SMS provider is configured.
 - Sisten, Catch, Infection, and checkpoint rounds.
 - Round length, optional countdown, hunter location reveal timing, and map visibility controls.
 - Search for places in Norway and draw a play area on an OpenStreetMap street map.

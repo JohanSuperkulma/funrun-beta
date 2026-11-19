@@ -19,6 +19,7 @@ if (!configured) {
 } else {
   const supabase = createClient(supabaseConfig.url, supabaseConfig.publishableKey);
   let user = null, roomId = null, room = null, members = [], roles = [], requests = [], packages = [], checkpointVisits = [];
+  let pendingPhone = "", pendingPhoneName = "";
   let channel = null, refreshTimer = null, refreshBusy = false, refreshAgain = false, gameTimer = null;
   let gpsWatch = null, gameMap = null, setupMap = null, ownMarker = null, setupLayers = null, gameLayers = null;
   let otherMarkers = new Map(), gameOptions = { ...DEFAULT_OPTIONS }, mapTool = null, searchResults = [];
@@ -30,6 +31,13 @@ if (!configured) {
   const currentRole = () => roles.find(row => row.user_id === user?.id)?.role || null;
   const currentName = () => String(user?.user_metadata?.display_name || user?.email?.split("@")[0] || "Spiller").slice(0, 24);
   const requestedName = () => ($("#display-name").value.trim() || currentName()).slice(0, 24);
+  const normalizePhoneNumber = value => {
+    let phone=value.trim().replace(/[\s().-]/g,"");
+    if(phone.startsWith("00"))phone="+"+phone.slice(2);
+    if(/^\d{8}$/.test(phone))phone="+47"+phone;
+    if(!/^\+[1-9]\d{7,14}$/.test(phone))throw new Error("Skriv inn et gyldig telefonnummer med landskode, for eksempel +47 123 45 678.");
+    return phone;
+  };
   const currentMember = () => members.find(member => member.user_id === user?.id);
   const isHost = () => room?.host_id === user?.id;
   const setView = name => {
@@ -614,6 +622,42 @@ if (!configured) {
     $("#toggle-auth").textContent=create?"Jeg har allerede en bruker":"Lag en ny bruker";
     $("#password").autocomplete=create?"new-password":"current-password";
   });
+  const selectAuthMethod = method => {
+    const emailSelected=method==="email";
+    $("#auth-form").hidden=!emailSelected;$("#phone-auth-panel").hidden=emailSelected;
+    $("#email-auth-tab").classList.toggle("active",emailSelected);$("#email-auth-tab").setAttribute("aria-selected",String(emailSelected));
+    $("#phone-auth-tab").classList.toggle("active",!emailSelected);$("#phone-auth-tab").setAttribute("aria-selected",String(!emailSelected));
+    setStatus("");
+  };
+  $("#email-auth-tab").addEventListener("click",()=>selectAuthMethod("email"));
+  $("#phone-auth-tab").addEventListener("click",()=>selectAuthMethod("phone"));
+  $("#phone-form").addEventListener("submit",async event=>{
+    event.preventDefault();
+    const name=$("#phone-display-name").value.trim();
+    if(name.length<2){setStatus("Skriv inn et visningsnavn på minst to tegn.");return;}
+    try{
+      pendingPhone=normalizePhoneNumber($("#phone-number").value);pendingPhoneName=name.slice(0,24);setStatus("Sender SMS-kode …");
+      const {error}=await supabase.auth.signInWithOtp({phone:pendingPhone,options:{shouldCreateUser:true,data:{display_name:pendingPhoneName}}});
+      if(error)throw error;
+      $("#phone-sent-to").textContent="Skriv inn koden vi sendte til "+pendingPhone+".";
+      $("#phone-form").hidden=true;$("#phone-verify-form").hidden=false;$("#phone-otp").value="";$("#phone-otp").focus();setStatus("SMS-koden er sendt.");
+    }catch(error){
+      if(/phone.*provider|sms.*provider|sms.*not configured|phone.*disabled/i.test(error?.message||""))setStatus("Telefoninnlogging er ikke aktivert ennå. Supabase må kobles til en SMS-tjeneste.");
+      else showError(error,"Kunne ikke sende SMS-koden. Sjekk nummeret og prøv igjen.");
+    }
+  });
+  $("#phone-verify-form").addEventListener("submit",async event=>{
+    event.preventDefault();const token=$("#phone-otp").value.trim();
+    if(!/^\d{6}$/.test(token)){setStatus("Koden skal være på 6 sifre.");return;}
+    setStatus("Sjekker koden …");
+    try{
+      const {error}=await supabase.auth.verifyOtp({phone:pendingPhone,token,type:"sms"});if(error)throw error;
+      const {data,error:nameError}=await supabase.auth.updateUser({data:{display_name:pendingPhoneName}});
+      if(data?.user)user=data.user;pendingPhone="";pendingPhoneName="";
+      if(nameError)setStatus("Du er logget inn, men visningsnavnet kunne ikke lagres.");else setStatus("");
+    }catch(error){showError(error,"Koden stemmer ikke eller har gått ut. Be om en ny kode.");}
+  });
+  $("#change-phone").addEventListener("click",()=>{pendingPhone="";pendingPhoneName="";$("#phone-verify-form").hidden=true;$("#phone-form").hidden=false;$("#phone-number").focus();setStatus("");});
   $("#sign-out").addEventListener("click",async()=>{if(roomId){try{await callRpc("funrun_leave_room",{p_room_id:roomId});}catch(_){}}unsubscribeRoom();await supabase.auth.signOut();});
   $("#create-room").addEventListener("click",createRoom);
   $("#join-room").addEventListener("click",joinRoom);
