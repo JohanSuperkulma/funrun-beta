@@ -16,6 +16,9 @@
     h2 { font-size: 19px; }
     .card { padding: 18px; margin: 12px 0; border: 1px solid #37463b; border-radius: 18px; background: #1d2821; }
     .stack, form { display: grid; gap: 12px; }
+    .auth-methods { display: flex; gap: 10px; margin: 14px 0; }
+    .auth-methods button { flex: 1; }
+    .auth-methods button.active { border-color: #83d4a0; background: #304b38; }
     label { display: grid; gap: 6px; }
     input, select, button { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #405246; border-radius: 12px; background: #26332a; color: inherit; font: inherit; }
     button { cursor: pointer; font-weight: 650; }
@@ -47,8 +50,12 @@
   <section class="card" id="auth-gate">
     <p class="note" id="setup-note" hidden>Supabase må kobles til først. Legg prosjektets URL og Publishable key inn i supabase-config.js.</p>
     <h1>Logg inn eller lag bruker</h1>
-    <p class="muted">Bruk en e-postadresse og et passord. Velg et visningsnavn vennene dine kjenner.</p>
-    <form id="auth-form">
+    <p class="muted">Velg e-post eller telefon. Med telefon får du en engangskode på SMS.</p>
+    <div class="auth-methods" role="tablist" aria-label="Velg innlogging">
+      <button class="auth-method active" id="email-auth-tab" type="button" role="tab" aria-selected="true">E-post</button>
+      <button class="auth-method" id="phone-auth-tab" type="button" role="tab" aria-selected="false">Telefon</button>
+    </div>
+    <form id="auth-form" role="tabpanel" aria-labelledby="email-auth-tab">
       <input id="auth-mode" type="hidden" value="login">
       <label id="display-name-field" hidden>Visningsnavn<input id="display-name" maxlength="24" autocomplete="nickname" placeholder="Navnet vennene ser"></label>
       <label>E-post<input id="email" type="email" required autocomplete="email" maxlength="254"></label>
@@ -56,6 +63,20 @@
       <button class="primary" id="auth-submit" type="submit">Logg inn</button>
       <button id="toggle-auth" type="button">Lag en ny bruker</button>
     </form>
+    <section id="phone-auth-panel" role="tabpanel" aria-labelledby="phone-auth-tab" hidden>
+      <form id="phone-form">
+        <label>Visningsnavn<input id="phone-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label>
+        <label>Telefonnummer<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+47 123 45 678" maxlength="24" required></label>
+        <p class="note">Skriv norsk nummer eller bruk landskode, for eksempel +47. SMS kan koste penger.</p>
+        <button class="primary" id="send-phone-code" type="submit">Send SMS-kode</button>
+      </form>
+      <form id="phone-verify-form" hidden>
+        <p class="muted" id="phone-sent-to"></p>
+        <label>Engangskode<input id="phone-otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="6 sifre" required></label>
+        <button class="primary" type="submit">Bekreft kode</button>
+        <button id="change-phone" type="button">Bruk et annet nummer</button>
+      </form>
+    </section>
   </section>
 
   <section id="app-view" hidden>
