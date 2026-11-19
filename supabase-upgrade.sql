@@ -1,6 +1,6 @@
 -- FunRun multiplayer upgrade for an existing project.
 -- Run once in Supabase SQL Editor after the original supabase-schema.sql.
--- Adds shared round setup, boundary rules, packages, checkpoints, and ready checks.
+-- Adds shared round setup, boundary rules, packages, and checkpoints.
 
 alter table public.funrun_rooms
   add column if not exists game_options jsonb not null default '{}'::jsonb,
@@ -16,8 +16,6 @@ alter table public.funrun_rooms drop constraint if exists funrun_rooms_headstart
 alter table public.funrun_rooms add constraint funrun_rooms_headstart_seconds_check
   check (headstart_seconds between 0 and 3600);
 
-alter table public.funrun_members
-  add column if not exists ready boolean not null default false;
 
 create table if not exists public.funrun_packages (
   id uuid primary key default gen_random_uuid(),
@@ -270,22 +268,9 @@ begin
       or not private.point_inside_zone(v_lat,v_lng,v_zone) then raise exception 'Pakkene må ligge i spilleområdet.'; end if;
     insert into public.funrun_packages(room_id, lat, lng) values (p_room_id, v_lat, v_lng);
   end loop;
-  update public.funrun_members set ready = false where room_id = p_room_id;
 end;
 $$;
 
-create or replace function public.funrun_set_ready(p_room_id uuid, p_ready boolean)
-returns void
-language plpgsql security definer
-set search_path = pg_catalog, public, pg_temp
-as $$
-begin
-  update public.funrun_members m set ready = p_ready
-  where m.room_id = p_room_id and m.user_id = auth.uid()
-    and exists (select 1 from public.funrun_rooms r where r.id = p_room_id and r.phase = 'lobby');
-  if not found then raise exception 'Du er ikke i en åpen lobby.'; end if;
-end;
-$$;
 
 create or replace function public.funrun_start_round(p_room_id uuid)
 returns void
@@ -303,9 +288,6 @@ begin
   if not found or v_room.host_id <> auth.uid() or v_room.phase <> 'lobby' then raise exception 'Bare verten kan starte lobbyen.'; end if;
   select count(*) into v_count from public.funrun_members m where m.room_id = p_room_id;
   if v_count < 2 then raise exception 'Minst to spillere må være med.'; end if;
-  if not exists(select 1 from public.funrun_members m where m.room_id=p_room_id and m.user_id=auth.uid() and m.ready) then
-    raise exception 'Verten må lese reglene og trykke klar før start.';
-  end if;
   if jsonb_array_length(coalesce(v_room.game_options->'zone','[]'::jsonb)) < 3 then raise exception 'Tegn et spilleområde med minst tre punkter først.'; end if;
   if v_room.mode = 'checkpoints'
     and jsonb_array_length(coalesce(v_room.game_options->'checkpoints','[]'::jsonb)) < least(10,greatest(1,coalesce((v_room.game_options->>'checkpointCount')::integer,3))) then
@@ -512,7 +494,6 @@ $$;
 revoke all on function public.funrun_save_full_setup(uuid,text,integer,integer,integer,integer,jsonb,jsonb) from public, anon;
 revoke all on function public.funrun_get_area_status(uuid) from public, anon;
 revoke all on function public.funrun_get_visible_positions(uuid) from public, anon;
-revoke all on function public.funrun_set_ready(uuid,boolean) from public, anon;
 revoke all on function public.funrun_start_round(uuid) from public, anon;
 revoke all on function public.funrun_advance_round(uuid) from public, anon;
 revoke all on function public.funrun_confirm_tag(uuid) from public, anon;
@@ -522,7 +503,6 @@ revoke all on function public.funrun_claim_checkpoint(uuid,integer) from public,
 grant execute on function public.funrun_save_full_setup(uuid,text,integer,integer,integer,integer,jsonb,jsonb) to authenticated;
 grant execute on function public.funrun_get_area_status(uuid) to authenticated;
 grant execute on function public.funrun_get_visible_positions(uuid) to authenticated;
-grant execute on function public.funrun_set_ready(uuid,boolean) to authenticated;
 grant execute on function public.funrun_start_round(uuid) to authenticated;
 grant execute on function public.funrun_advance_round(uuid) to authenticated;
 grant execute on function public.funrun_confirm_tag(uuid) to authenticated;
