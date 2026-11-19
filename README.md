@@ -13,7 +13,7 @@ FunRun is a mobile-first web app for GPS-based tag games. The main page opens th
 - Optional packages with random advantage/disadvantage cards and up to ten checkpoints.
 - Full-screen round map, GPS sharing, touch confirmation for tags, and post-round distance summary.
 - Anonymized zone count mode, so the hunter can see how many sharing players are in the zone without seeing their names or map points.
-- The host can start as soon as the host is ready; other players do not need to press ready.
+- The host starts once there are at least two players and a drawn play area.
 
 ## Supabase setup
 
