@@ -8,9 +8,9 @@ I Supabase åpner du Project Settings → API Keys. Bruk prosjektets URL og nøk
 
 ## 2. Databaseoppsett
 
-Siden den eksisterende FunRun-databasen allerede er laget, åpner du Supabase SQL Editor → New query, limer inn hele [supabase-upgrade.sql](https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-upgrade.sql) og trykker Run én gang. Denne oppgraderingen legger til delte rundeinnstillinger, pakker, kontrollpunkter, sonevarsler, anonym soneoversikt og klar-status før start. Den begrenser også når jegeren kan lese spillernes posisjoner.
+Siden den eksisterende FunRun-databasen allerede er laget, åpner du Supabase SQL Editor → New query, limer inn hele [supabase-upgrade.sql](https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-upgrade.sql) og trykker Run én gang. Denne oppgraderingen legger til delte rundeinnstillinger, pakker, kontrollpunkter, sonevarsler, anonym soneoversikt og spillstart. Den begrenser også når jegeren kan lese spillernes posisjoner.
 
-Hvis prosjektet allerede har kjørt `supabase-upgrade.sql`, bruk i stedet [supabase-host-start.sql](https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-host-start.sql) for å la verten starte uten at alle må være klare. Den må kjøres én gang.
+Hvis prosjektet allerede har kjørt `supabase-upgrade.sql`, bruk i stedet [supabase-host-start.sql](https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-host-start.sql) slik at verten kan starte uten spillerstatus i lobbyen. Kjør den én gang.
 
 For et helt nytt Supabase-prosjekt må du først kjøre supabase-schema.sql og deretter supabase-upgrade.sql.
 
