@@ -45,7 +45,6 @@
     .auth-methods button.active { border-color:var(--green); background:#314c38; }
     .players { display:grid; gap:6px; padding:0; list-style:none; }
     .players li { display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; background:#142018; }
-    .player-state { color:var(--muted); font-size:13px; }
     .subpanel { margin-top:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:#152019; }
     .switch { display:flex; align-items:flex-start; gap:9px; }
     .search-row { display:flex; gap:8px; }
@@ -178,10 +177,8 @@
               <li>Stopp leken hvis noen trenger hjelp eller pause.</li>
             </ol>
           </div>
-          <label class="switch" style="margin-top:12px"><input id="ready-check" type="checkbox"><span>Jeg har lest reglene og er klar.</span></label>
           <button class="primary" id="start-round" type="button" style="margin-top:10px" disabled>Start runden</button>
-          <p class="note">Verten må ha lest reglene og trykket klar. Minst to spillere og et tegnet spilleområde kreves for start.</p>
-          <p class="note" id="host-start-update" hidden>For å bruke verten-klar-start må Supabase oppdateres én gang. <a href="https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-host-start.sql" target="_blank" rel="noopener">Åpne SQL-oppdateringen</a>.</p>
+          <p class="note">Minst to spillere og et tegnet spilleområde kreves for start.</p>
         </div>
       </div>
       <button id="leave-room" type="button" class="ghost" style="margin-top:10px">Forlat lobby</button>
@@ -208,6 +205,6 @@
 </section>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="./supabase-live.js?v=7"></script>
+<script type="module" src="./supabase-live.js?v=8"></script>
 </body>
 </html>
