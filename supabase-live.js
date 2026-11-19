@@ -419,23 +419,38 @@ if (!configured) {
     gameOptions.checkpoints=gameOptions.checkpoints.slice(0,checkpointCount);
     return {mode:$("#mode").value,minutes,revealEvery,revealSeconds,headstart,options:gameOptions};
   };
+  const persistSettings = async () => {
+    const settings=collectSettings();
+    if(settings.mode==="checkpoints"&&settings.options.checkpoints.length<settings.options.checkpointCount)throw new Error("Plasser " + settings.options.checkpointCount + " kontrollpunkter på kartet først.");
+    if(!settings.options.packagesEnabled)settings.options.pendingPackages=[];
+    const {error}=await supabase.rpc("funrun_save_full_setup",{p_room_id:roomId,p_mode:settings.mode,p_duration_minutes:settings.minutes,p_headstart_seconds:settings.headstart,p_reveal_every_minutes:settings.revealEvery,p_reveal_seconds:settings.revealSeconds,p_game_options:settings.options,p_packages:settings.options.pendingPackages});
+    if(error)throw error;
+    settingsDirty=false;gameOptions.pendingPackages=[];
+    await refreshRoom();
+  };
   const saveSettings = async () => {
     if(!roomId||!isHost())return;
-    try{
-      const settings=collectSettings();
-      if(settings.mode==="checkpoints"&&settings.options.checkpoints.length<settings.options.checkpointCount)throw new Error("Plasser " + settings.options.checkpointCount + " kontrollpunkter på kartet først.");
-      if(!settings.options.packagesEnabled)settings.options.pendingPackages=[];
-      const {error}=await supabase.rpc("funrun_save_full_setup",{p_room_id:roomId,p_mode:settings.mode,p_duration_minutes:settings.minutes,p_headstart_seconds:settings.headstart,p_reveal_every_minutes:settings.revealEvery,p_reveal_seconds:settings.revealSeconds,p_game_options:settings.options,p_packages:settings.options.pendingPackages});
-      if(error)throw error;
-      settingsDirty=false;gameOptions.pendingPackages=[];setStatus("Oppsettet er lagret.");await refreshRoom();
-    }catch(error){showError(error,"Kunne ikke lagre oppsettet.");}
+    try{await persistSettings();setStatus("Oppsettet er lagret.");}
+    catch(error){showError(error,"Kunne ikke lagre oppsettet.");}
   };
   const startRound = async () => {
     if(!roomId||!isHost())return;
-    try{await callRpc("funrun_start_round",{p_room_id:roomId});await refreshRoom();setStatus("Runden har startet! Trykk Start GPS for å dele posisjonen din.");}
-    catch(error){
+    const button=$("#start-round");
+    button.disabled=true;
+    try{
+      const savedZone=room?.game_options?.zone;
+      if(settingsDirty||!Array.isArray(savedZone)||savedZone.length!==gameOptions.zone.length) {
+        setStatus("Lagrer kartet og starter runden …");
+        await persistSettings();
+      }
+      await callRpc("funrun_start_round",{p_room_id:roomId});
+      await refreshRoom();
+      setStatus("Runden har startet! Trykk Start GPS for å dele posisjonen din.");
+    }catch(error){
       if(/Verten må lese reglene/i.test(error?.message||"")) setStatus("Kjør den oppdaterte SQL-filen i Supabase før du starter.");
       else showError(error,"Kunne ikke starte runden.");
+    }finally{
+      if(room?.phase==="lobby")renderRoom();
     }
   };
   const haversine = (a,b) => {
