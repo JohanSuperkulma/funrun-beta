@@ -205,11 +205,11 @@ if (!configured) {
     $("#player-list").replaceChildren(...members.map(member => {
       const li = document.createElement("li");
       const label = document.createElement("span"); label.textContent = member.display_name + (member.user_id === room.host_id ? " · vert" : "");
-      const state = document.createElement("span"); state.className = "player-state"; state.textContent = member.ready ? "Klar" : "Venter";
+      const state = document.createElement("span"); state.className = "player-state"; state.textContent = member.ready ? "Klar" : "Ikke klar";
       li.append(label,state); return li;
     }));
-    const ready = members.filter(member => member.ready).length;
-    $("#start-round").textContent = ready === members.length && ready >= 2 ? "Start runden" : "Venter på at alle blir klare (" + ready + "/" + members.length + ")";
+    const hostReady = members.some(member => member.user_id === room.host_id && member.ready);
+    $("#start-round").textContent = members.length < 2 ? "Venter på minst én spiller til" : hostReady ? "Start runden" : "Verten må være klar først";
   };
   const renderRoom = () => {
     if (!roomId || !room) return;
@@ -225,10 +225,10 @@ if (!configured) {
     }
     const checkpointCount = Number(gameOptions.checkpointCount || 0);
     $("#checkpoint-settings").hidden = $("#mode").value !== "checkpoints";
-    const everyoneReady = members.length >= 2 && members.every(member => member.ready);
+    const hostReady = Boolean(currentMember()?.ready);
     const zoneReady = gameOptions.zone?.length >= 3;
     const checkpointsReady = $("#mode").value !== "checkpoints" || gameOptions.checkpoints.length >= checkpointCount;
-    $("#start-round").disabled = !isHost() || !everyoneReady || !zoneReady || !checkpointsReady;
+    $("#start-round").disabled = !isHost() || members.length < 2 || !hostReady || !zoneReady || !checkpointsReady;
   };
   const positionOptions = () => room?.game_options || DEFAULT_OPTIONS;
   const addMarkerForPosition = (point, display) => {
@@ -437,7 +437,12 @@ if (!configured) {
   const startRound = async () => {
     if(!roomId||!isHost())return;
     try{await callRpc("funrun_start_round",{p_room_id:roomId});await refreshRoom();setStatus("Runden har startet! Trykk Start GPS for å dele posisjonen din.");}
-    catch(error){showError(error,"Kunne ikke starte runden.");}
+    catch(error){
+      if(/alle må lese reglene/i.test(error?.message||"")){
+        $("#host-start-update").hidden=false;
+        setStatus("Supabase må få en liten oppdatering før verten kan starte alene. Følg SQL-lenken under startknappen.");
+      }else showError(error,"Kunne ikke starte runden.");
+    }
   };
   const setReady = async ready => {
     if(!roomId)return;
