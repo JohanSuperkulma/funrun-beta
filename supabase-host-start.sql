@@ -1,6 +1,6 @@
 -- FunRun host-start update for an existing Supabase project.
 -- Run once after supabase-upgrade.sql.
--- Only the host must mark ready; the lobby still needs at least two players.
+-- Starts without player status checks; the lobby still needs at least two players.
 
 create or replace function public.funrun_start_round(p_room_id uuid)
 returns void
@@ -20,9 +20,6 @@ begin
   end if;
   select count(*) into v_count from public.funrun_members m where m.room_id = p_room_id;
   if v_count < 2 then raise exception 'Minst to spillere må være med.'; end if;
-  if not exists(select 1 from public.funrun_members m where m.room_id=p_room_id and m.user_id=auth.uid() and m.ready) then
-    raise exception 'Verten må lese reglene og trykke klar før start.';
-  end if;
   if jsonb_array_length(coalesce(v_room.game_options->'zone','[]'::jsonb)) < 3 then
     raise exception 'Tegn et spilleområde med minst tre punkter først.';
   end if;
