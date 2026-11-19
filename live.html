@@ -3,136 +3,188 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#131a16">
-  <meta name="description" content="Lag en FunRun-lobby med kode og spill GPS-basert sisten, catch eller infection med vennene dine. Gratis spillbeta på nett.">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://johansuperkulma.github.io/funrun-beta/live.html">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="FunRun — spill med venner">
-  <meta property="og:description" content="Lag en lobby med kode og spill FunRun ute med vennene dine.">
-  <meta property="og:url" content="https://johansuperkulma.github.io/funrun-beta/live.html">
+  <meta name="theme-color" content="#111a15">
+  <meta name="description" content="FunRun – lag lobby, velg spilleområde og spill GPS-sisten med venner.">
+  <link rel="canonical" href="https://johansuperkulma.github.io/funrun-beta/">
+  <meta property="og:title" content="FunRun – spill med venner">
+  <meta property="og:description" content="Lag lobby og spill GPS-basert sisten med venner.">
   <title>FunRun — spill med venner</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; padding: 18px; background: #131a16; color: #f0f5ef; font: 16px/1.45 system-ui, sans-serif; }
-    main { width: min(100%, 620px); margin: 0 auto; }
-    header, .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    header { margin: 0 0 18px; }
-    h1 { font-size: 25px; margin: 5px 0; }
-    h2 { font-size: 19px; }
-    .card { padding: 18px; margin: 12px 0; border: 1px solid #37463b; border-radius: 18px; background: #1d2821; }
-    .stack, form { display: grid; gap: 12px; }
-    .auth-methods { display: flex; gap: 10px; margin: 14px 0; }
-    .auth-methods button { flex: 1; }
-    .auth-methods button.active { border-color: #83d4a0; background: #304b38; }
-    label { display: grid; gap: 6px; }
-    input, select, button { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #405246; border-radius: 12px; background: #26332a; color: inherit; font: inherit; }
-    button { cursor: pointer; font-weight: 650; }
-    button.primary { border-color: #83d4a0; background: #83d4a0; color: #122018; }
-    button:disabled { opacity: .45; cursor: not-allowed; }
-    .small { width: auto; min-height: 38px; padding: 7px 11px; }
-    .muted, .note { color: #a6b4a9; }
-    .note { font-size: 13px; }
-    .code { font-size: 25px; font-weight: 750; letter-spacing: .12em; }
-    ul { padding-left: 22px; }
-    li { padding: 4px 0; }
-    #status { min-height: 1.5em; color: #f0ab73; }
-    #map { height: min(62vh, 560px); min-height: 330px; margin: -18px -18px 16px; background: #dfe8d6; border-radius: 18px 18px 0 0; }
-    #tag-confirm { border: 2px solid #f0ab73; }
-    [hidden] { display: none !important; }
-    #game-view { position: fixed; inset: 0; z-index: 50; width: 100vw; height: 100dvh; max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; background: #131a16; }
-    #game-view #map { flex: 1 1 auto; width: 100%; height: auto; min-height: 0; margin: 0; border-radius: 0; }
-    #game-view > .row { position: absolute; top: calc(env(safe-area-inset-top) + 12px); left: 12px; right: 12px; z-index: 2; pointer-events: none; }
-    #game-view > .row strong { padding: 8px 11px; border-radius: 12px; background: #142019e8; box-shadow: 0 2px 12px #0006; }
-    #game-view > .note { margin: 0; padding: 8px 12px 0; background: #131a16; }
-    #game-view > .stack { flex: 0 0 auto; max-height: 34dvh; overflow: auto; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); background: #131a16; }
-    @media (max-width: 480px) { body { padding: 8px; } .card { padding: 14px; } #map { margin: -14px -14px 14px; } }
+    :root { color-scheme: dark; --bg:#111a15; --surface:#1b2820; --surface2:#24342a; --line:#394d40; --text:#f4f7f3; --muted:#b6c4b9; --green:#8be1a8; --orange:#ffc078; --red:#ff8277; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; min-height:100%; background:var(--bg); color:var(--text); font:16px/1.45 system-ui,sans-serif; }
+    body { padding: max(10px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom)); }
+    [hidden] { display:none !important; }
+    main { width:min(100%,760px); margin:0 auto; }
+    header,.row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    header { margin:4px 0 16px; }
+    h1 { margin:4px 0 8px; font-size:clamp(24px,6vw,34px); line-height:1.1; }
+    h2 { margin:12px 0 6px; font-size:20px; }
+    h3 { margin:10px 0 6px; font-size:17px; }
+    p { margin:7px 0; }
+    .brand { color:var(--green); font-size:22px; font-weight:800; letter-spacing:-.03em; }
+    .card { margin:12px 0; padding:16px; border:1px solid var(--line); border-radius:18px; background:var(--surface); }
+    .stack,form { display:grid; gap:11px; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    label { display:grid; gap:5px; font-weight:650; }
+    input,select,button { width:100%; min-height:44px; padding:9px 11px; border:1px solid #52675a; border-radius:11px; background:var(--surface2); color:var(--text); font:inherit; }
+    input[type=checkbox] { width:21px; min-height:21px; accent-color:var(--green); }
+    button { cursor:pointer; font-weight:700; }
+    button:disabled { cursor:not-allowed; opacity:.48; }
+    button.primary { border-color:var(--green); background:var(--green); color:#102016; }
+    button.ghost { background:transparent; }
+    .muted,.note { color:var(--muted); }
+    .note { font-size:13px; }
+    .status { min-height:1.5em; color:var(--orange); font-weight:650; overflow-wrap:anywhere; }
+    .code { color:var(--green); font-size:28px; font-weight:850; letter-spacing:.12em; }
+    .tabs { display:flex; gap:8px; }
+    .tabs button.active { border-color:var(--green); background:#314c38; }
+    .players { display:grid; gap:6px; padding:0; list-style:none; }
+    .players li { display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:10px; background:#142018; }
+    .player-state { color:var(--muted); font-size:13px; }
+    .subpanel { margin-top:12px; padding:12px; border:1px solid var(--line); border-radius:14px; background:#152019; }
+    .switch { display:flex; align-items:flex-start; gap:9px; }
+    .search-row { display:flex; gap:8px; }
+    .search-row input { flex:1; min-width:0; }
+    .search-row button { width:auto; }
+    .place-results { display:grid; gap:5px; margin:7px 0; }
+    .place-results button { text-align:left; font-weight:500; }
+    .map-box { position:relative; height:min(48vh,430px); min-height:290px; overflow:hidden; border:1px solid var(--line); border-radius:15px; background:#dfe8df; }
+    #setup-map,#game-map { position:absolute; inset:0; z-index:1; }
+    .map-help { margin-top:7px; color:var(--muted); font-size:13px; }
+    .map-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+    .map-actions button.selected { border-color:var(--green); background:#314c38; }
+    .rule-box { padding:12px; border-radius:12px; background:#142018; }
+    .rule-box ol { padding-left:20px; margin:6px 0; }
+    .rule-box li { padding:3px 0; }
+    #setup-note { color:var(--orange); }
+    #setup-note code { color:var(--text); }
+    #game-view { position:fixed; inset:0; z-index:50; width:100vw; height:100dvh; padding:0; background:var(--bg); overflow:hidden; }
+    .game-map { position:absolute; inset:0 0 168px; background:#dfe8df; }
+    .game-top { position:absolute; z-index:5; top:calc(env(safe-area-inset-top) + 10px); left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; pointer-events:none; }
+    .game-pill { max-width:68%; padding:8px 11px; border:1px solid #ffffff38; border-radius:12px; background:#111a15e8; box-shadow:0 2px 10px #0005; font-weight:750; }
+    .game-bottom { position:absolute; z-index:5; left:0; right:0; bottom:0; max-height:48dvh; overflow:auto; padding:9px 12px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(#111a15f5,#111a15 20%); }
+    .game-bottom .row { align-items:stretch; }
+    .game-bottom .row > * { flex:1; }
+    .gps-status { padding:8px 10px; border-radius:10px; background:#1b2820; font-size:13px; }
+    .gps-status.alert { color:var(--orange); border:1px solid #896f43; }
+    .live-buttons { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+    .live-buttons #request-tag { grid-column:1/-1; }
+    .toast { margin:7px 0; padding:9px 11px; border:1px solid #6e925f; border-radius:10px; background:#1b3825; }
+    .leaflet-tooltip { color:#fff; background:#152019; border-color:#152019; }
+    .leaflet-tooltip-top:before { border-top-color:#152019; }
+    @media(max-width:520px) { body { padding-left:8px; padding-right:8px; } .card { padding:13px; } .grid2 { grid-template-columns:1fr; } .map-box { height:42vh; min-height:260px; } .game-map { bottom:190px; } .game-bottom { max-height:54dvh; } .game-pill { max-width:72%; font-size:14px; } }
   </style>
 </head>
 <body>
 <main>
-  <header><div><strong>↗ FunRun</strong><div class="muted">Spill sammen på nett</div></div><a href="./" style="color:#83d4a0">Til betaen</a></header>
-
+  <header><div><div class="brand">↗ FunRun</div><div class="muted">Spill sammen ute</div></div></header>
   <section class="card" id="auth-gate">
-    <p class="note" id="setup-note" hidden>Supabase må kobles til først. Legg prosjektets URL og Publishable key inn i supabase-config.js.</p>
     <h1>Spill med venner</h1>
-    <p class="muted">Lag en gjestekonto med et navn, eller logg inn med e-post eller telefon.</p>
-    <form id="guest-form" class="stack">
-      <label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label>
-      <button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button>
-      <p class="note">Gjestekontoen lagres på denne enheten. Hvis du logger ut, bytter enhet eller sletter nettleserdata, kan du miste kontoen.</p>
-    </form>
-    <p class="note">Eller logg inn med e-post eller telefon.</p>
-    <div class="auth-methods" role="tablist" aria-label="Velg innlogging">
-      <button class="auth-method active" id="email-auth-tab" type="button" role="tab" aria-selected="true">E-post</button>
-      <button class="auth-method" id="phone-auth-tab" type="button" role="tab" aria-selected="false">Telefon</button>
-    </div>
-    <form id="auth-form" role="tabpanel" aria-labelledby="email-auth-tab">
+    <p class="muted">Lag en gjestekonto på telefonen din, eller bruk e-post.</p>
+    <form id="guest-form"><label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label><button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button><p class="note">Gjestekontoen hører til denne enheten. Ikke logg ut eller slett nettleserdata hvis du vil beholde den.</p></form>
+    <p class="note">Eller bruk e-post.</p>
+    <form id="auth-form">
       <input id="auth-mode" type="hidden" value="login">
-      <label id="display-name-field" hidden>Visningsnavn<input id="display-name" maxlength="24" autocomplete="nickname" placeholder="Navnet vennene ser"></label>
-      <label>E-post<input id="email" type="email" required autocomplete="email" maxlength="254"></label>
-      <label>Passord<input id="password" type="password" required autocomplete="current-password" minlength="6"></label>
+      <label id="display-name-field" hidden>Visningsnavn<input id="display-name" maxlength="24" minlength="2" autocomplete="nickname"></label>
+      <label>E-post<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
+      <label>Passord<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
       <button class="primary" id="auth-submit" type="submit">Logg inn</button>
-      <button id="toggle-auth" type="button">Lag en ny bruker</button>
+      <button class="ghost" id="toggle-auth" type="button">Lag en ny bruker</button>
     </form>
-    <section id="phone-auth-panel" role="tabpanel" aria-labelledby="phone-auth-tab" hidden>
-      <form id="phone-form">
-        <label>Visningsnavn<input id="phone-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label>
-        <label>Telefonnummer<input id="phone-number" type="tel" inputmode="tel" autocomplete="tel" placeholder="+47 123 45 678" maxlength="24" required></label>
-        <p class="note">Skriv norsk nummer eller bruk landskode, for eksempel +47. SMS kan koste penger.</p>
-        <button class="primary" id="send-phone-code" type="submit">Send SMS-kode</button>
-      </form>
-      <form id="phone-verify-form" hidden>
-        <p class="muted" id="phone-sent-to"></p>
-        <label>Engangskode<input id="phone-otp" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="6 sifre" required></label>
-        <button class="primary" type="submit">Bekreft kode</button>
-        <button id="change-phone" type="button">Bruk et annet nummer</button>
-      </form>
-    </section>
   </section>
-
+  <p class="note" id="setup-note" hidden>FunRun trenger en databaseoppdatering før nye lobbyer, pakker og GPS-kart kan virke. Åpne Supabase → SQL Editor, lim inn innholdet i <code>supabase-upgrade.sql</code>, og trykk Run én gang.</p>
   <section id="app-view" hidden>
-    <div class="row card"><span>Hei, <strong id="signed-in-as"></strong></span><button class="small" id="sign-out" type="button">Logg ut</button></div>
+    <div class="row card"><span>Hei, <strong id="signed-in-as"></strong></span><button class="ghost" id="sign-out" type="button" style="width:auto">Logg ut</button></div>
     <section class="card" id="home-view" hidden>
-      <h1>Spill med venner</h1>
-      <p class="muted">Lag en lobby og del koden, eller bli med i en lobby du kjenner.</p>
-      <div class="stack">
-        <button class="primary" id="create-room" type="button">Lag lobby</button>
-        <label>Lobbykode<input id="join-code" maxlength="8" autocomplete="off" placeholder="8 tegn, for eksempel 4A7C91EF"></label>
-        <button id="join-room" type="button">Bli med</button>
-      </div>
+      <h1>Lobby</h1><p class="muted">Lag en lobby og del koden med vennene dine.</p>
+      <div class="stack"><button class="primary" id="create-room" type="button">Lag lobby</button><label>Bli med med kode<input id="join-code" maxlength="8" autocomplete="off" placeholder="8 tegn"></label><button id="join-room" type="button">Bli med</button></div>
     </section>
     <section class="card" id="room-view" hidden>
-      <div class="row"><div><div class="muted">Lobbykode</div><div class="code" id="room-code"></div></div><button class="small" id="copy-code" type="button">Kopier kode</button></div>
-      <h2>Spillere</h2><ul id="player-list"></ul>
-      <div id="host-controls" class="stack">
-        <h2>Rundeoppsett</h2>
-        <label>Spilltype<select id="mode"><option value="tag">Sisten</option><option value="catch">Catch · tatt spiller er ute</option><option value="infection">Infection</option></select></label>
-        <label>Rundelengde, minutter<input id="minutes" type="number" min="1" max="120" value="30"></label>
-        <label>Hvor ofte jegeren ser kartposisjon<select id="reveal-every"><option value="0">Alltid</option><option value="1">Hvert minutt</option><option value="5" selected>Hvert 5. minutt</option><option value="10">Hvert 10. minutt</option><option value="15">Hvert 15. minutt</option><option value="20">Hvert 20. minutt</option><option value="25">Hvert 25. minutt</option><option value="30">Hvert 30. minutt</option><option value="35">Hvert 35. minutt</option><option value="40">Hvert 40. minutt</option><option value="45">Hvert 45. minutt</option><option value="50">Hvert 50. minutt</option><option value="55">Hvert 55. minutt</option><option value="60">Hvert 60. minutt</option></select></label>
-        <label>Hvor lenge kartet vises, sekunder<input id="reveal-seconds" type="number" min="1" max="120" step="1" value="15" inputmode="numeric"></label>
-        <button id="save-settings" type="button">Lagre oppsett</button>
-        <button class="primary" id="start-round" type="button" disabled>Start runden</button>
-        <p class="note">Minst to spillere må være i lobbyen. Bare verten starter runden.</p>
+      <div class="row"><div><div class="muted">Lobbykode</div><div class="code" id="room-code"></div></div><button id="copy-code" type="button" style="width:auto">Kopier kode</button></div>
+      <h2>Spillere</h2><ul class="players" id="player-list"></ul>
+      <div id="host-controls">
+        <div class="subpanel">
+          <h2>Rundeoppsett</h2>
+          <div class="grid2">
+            <label>Spilltype<select id="mode"><option value="tag">Sisten</option><option value="catch">Catch — tatt spiller er ute</option><option value="infection">Infection — tatt spiller blir jeger</option><option value="checkpoints">Kontrollpunkter</option></select></label>
+            <label>Rundelengde<input id="minutes" type="number" min="1" max="120" step="1" value="30"></label>
+          </div>
+          <div class="switch" style="margin-top:10px"><input id="headstart-enabled" type="checkbox"><label for="headstart-enabled">Forsprang</label></div>
+          <label id="headstart-wrap" style="margin-top:6px">Egendefinert nedtelling, sekunder<input id="headstart-seconds" type="number" min="1" max="3600" step="1" value="60"></label>
+          <div class="grid2" style="margin-top:9px">
+            <label>Hvor ofte jegeren ser spillerne<select id="reveal-every"><option value="0">Alltid</option><option value="1">Hvert minutt</option><option value="5">Hvert 5. minutt</option><option value="10">Hvert 10. minutt</option><option value="15">Hvert 15. minutt</option><option value="20">Hvert 20. minutt</option><option value="25">Hvert 25. minutt</option><option value="30">Hvert 30. minutt</option><option value="40">Hvert 40. minutt</option><option value="50">Hvert 50. minutt</option><option value="60">Hvert 60. minutt</option><option value="custom">Egendefinert</option></select></label>
+            <label id="custom-interval-wrap" hidden>Egendefinert intervall, minutter<input id="custom-interval" type="number" min="1" max="60" step="1" value="7"></label>
+          </div>
+          <label style="margin-top:8px">Hvor lenge posisjonene vises, sekunder<input id="reveal-seconds" type="number" min="1" max="120" step="1" value="15"></label>
+          <div class="grid2" style="margin-top:9px">
+            <label>Hva jegeren ser<select id="position-display"><option value="names">Navn og posisjon</option><option value="dots">Bare prikker</option><option value="area">Bare at de er i sonen</option></select></label>
+            <label>Posisjonsnøyaktighet<select id="position-precision"><option value="approx">Omtrent</option><option value="exact">Nøyaktig</option></select></label>
+          </div>
+          <label style="margin-top:8px">Hvis noen er utenfor sonen i 10 sekunder<select id="outside-rule"><option value="out">Spilleren blir ute</option><option value="hunter">Spilleren blir jeger</option></select></label>
+          <div class="switch" style="margin-top:12px"><input id="packages-enabled" type="checkbox"><label for="packages-enabled">Bruk pakker med fordeler og ulemper</label></div>
+          <div id="checkpoint-settings" class="grid2" hidden style="margin-top:9px">
+            <label>Antall kontrollpunkter (maks 10)<input id="checkpoint-count" type="number" min="1" max="10" value="3"></label>
+            <label>Rekkefølge<select id="checkpoint-order"><option value="any">Valgfri</option><option value="ordered">Bestemt rekkefølge</option></select></label>
+          </div>
+          <button class="primary" id="save-settings" type="button" style="margin-top:12px">Lagre rundeoppsett</button>
+          <p class="note">Alle innstillinger lagres i lobbyen og deles med spillerne.</p>
+        </div>
+        <div class="subpanel">
+          <h2>Spilleområde og pakker</h2>
+          <p class="note">Søk i Norge. Bruk veikartet til å tegne et område. Kartet viser veier, bygninger, skog og vann. Zoom med fingrene.</p>
+          <div class="search-row"><input id="place-search" type="search" maxlength="100" placeholder="Søk sted i Norge" autocomplete="off"><button id="search-place" type="button">Søk</button></div>
+          <div id="place-results" class="place-results"></div><p class="note" id="place-status" aria-live="polite"></p>
+          <div class="map-actions" style="margin-bottom:9px">
+            <button type="button" data-map-tool="zone" id="draw-zone">Tegn område</button>
+            <button type="button" data-map-tool="package" id="place-packages">Legg ut pakker</button>
+            <button type="button" data-map-tool="checkpoint" id="place-checkpoints">Kontrollpunkter</button>
+            <button type="button" id="undo-map-point">Angre siste punkt</button>
+            <button type="button" id="clear-map-points">Tøm valgt markering</button>
+            <button type="button" class="primary" id="finish-map-edit">Ferdig med kart</button>
+          </div>
+          <p class="note" id="map-instructions" aria-live="polite">Trykk «Tegn område», og trykk minst tre steder på kartet.</p>
+          <div class="map-box"><div id="setup-map" aria-label="Veikart for spilleområdet"></div></div>
+          <p class="note" id="map-summary">Ingen sone tegnet ennå.</p>
+          <div class="rule-box" style="margin-top:12px">
+            <strong>Regler før start</strong>
+            <ol>
+              <li>For å ta noen må jegeren ta på spilleren i virkeligheten.</li>
+              <li>Jegeren trykker «Jeg har tatt noen». Spilleren stopper og bekrefter.</li>
+              <li>Hold dere innenfor sonen og unna trafikk og private områder.</li>
+              <li>GPS deles bare etter at du trykker «Start GPS».</li>
+              <li>Stopp leken hvis noen trenger hjelp eller pause.</li>
+            </ol>
+          </div>
+          <label class="switch" style="margin-top:12px"><input id="ready-check" type="checkbox"><span>Jeg har lest reglene og er klar.</span></label>
+          <button class="primary" id="start-round" type="button" style="margin-top:10px" disabled>Start runden</button>
+          <p class="note">Alle spillerne må være klare, og spilleområdet må være tegnet før runden starter.</p>
+        </div>
       </div>
-      <button id="leave-room" type="button">Forlat lobby</button>
-    </section>
-    <section class="card" id="game-view" hidden>
-      <div id="map" aria-label="Kart over spilleområdet"></div>
-      <div class="row"><strong id="game-status"></strong><strong id="timer">30:00</strong></div>
-      <p class="note">GPS deles bare mens du spiller. Jegeren kan hente posisjonene i kartperiodene. Trykk Stopp GPS for å slutte å dele.</p>
-      <div class="stack">
-        <button id="gps-toggle" type="button">Start GPS</button>
-        <label id="tag-target-label">Hvem ble tatt?<select id="tag-target"></select></label>
-        <button class="primary" id="request-tag" type="button" hidden>Jeg har tatt noen</button>
-        <div class="card" id="tag-confirm" hidden><p id="tag-confirm-text"></p><button class="primary" id="tag-confirm-button" type="button">Jeg bekrefter</button></div>
-        <button id="back-home" type="button">Tilbake</button>
-      </div>
+      <button id="leave-room" type="button" class="ghost" style="margin-top:10px">Forlat lobby</button>
     </section>
   </section>
-  <p id="status" role="status" aria-live="polite"></p>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
 </main>
+
+<section id="game-view" hidden aria-label="Aktiv FunRun-runde">
+  <div class="game-map"><div id="game-map" aria-label="Veikart med GPS og spilleområde"></div></div>
+  <div class="game-top"><div class="game-pill" id="game-status">Kobler til runden …</div><div class="game-pill" id="timer">00:00</div></div>
+  <div class="game-bottom">
+    <div id="gps-status" class="gps-status">GPS er av. Trykk Start GPS for å dele posisjonen din.</div>
+    <div id="area-status" class="gps-status" hidden></div>
+    <div id="game-toast" class="toast" hidden></div>
+    <div class="live-buttons"><button id="gps-toggle" type="button">Start GPS</button><button id="back-to-lobby" type="button">Lobby</button></div>
+    <label id="tag-target-label" style="margin-top:8px" hidden>Hvem ble tatt?<select id="tag-target"></select></label>
+    <button class="primary" id="request-tag" type="button" hidden style="margin-top:8px">Jeg har tatt noen</button>
+    <div id="tag-confirm" class="toast" hidden><p id="tag-confirm-text"></p><button class="primary" id="tag-confirm-button" type="button">Jeg bekrefter</button></div>
+    <button id="open-package" type="button" hidden style="margin-top:8px">Åpne pakke</button>
+    <div id="package-result" class="toast" hidden></div>
+    <div id="checkpoint-progress" class="gps-status" hidden></div>
+  </div>
+</section>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script type="module" src="./supabase-live.js"></script>
 </body>

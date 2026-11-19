@@ -1,22 +1,24 @@
-# FunRun beta
+# FunRun
 
-Dette er en nettleserbeta av FunRun. `index.html` er den eksisterende demoen; `live.html` er flerspillerversjonen for kontoer, lobbyer og live-runder. Den bruker et eget Supabase-prosjekt.
+FunRun is a mobile-first web app for GPS-based tag games. The main page opens the live multiplayer version at live.html. It uses Supabase for accounts, lobbies, settings, tag confirmation, package collection, checkpoint progress, and location sharing.
 
-## Hva betaen gjør
+## Current play features
 
-- Lar deg lage en lobby, velge regler og sette opp et spilleområde.
-- Viser kart, kontrollsoner, rundevisning og resultater.
-- Lar deg prøve flyten i én nettleser med simulerte spillere.
+- Create or join a lobby with an eight-character code.
+- Sisten, Catch, Infection, and checkpoint rounds.
+- Round length, optional countdown, hunter location reveal timing, and map visibility controls.
+- Search for places in Norway and draw a play area on an OpenStreetMap street map.
+- Boundary warnings with an optional out or hunter penalty after ten seconds outside.
+- Optional packages with random advantage/disadvantage cards and up to ten checkpoints.
+- Full-screen round map, GPS sharing, touch confirmation for tags, and post-round distance summary.
+- Anonymized zone count mode, so the hunter can see how many sharing players are in the zone without seeing their names or map points.
 
-## Viktig
+## Supabase setup
 
-Den publiserte `index.html`-betaen er en prototype. Lobbykoder kobler ikke sammen ulike telefoner, og posisjoner i selve runden er simulert.
+See [SUPABASE_SETUP.md](SUPABASE_SETUP.md). An existing project must run supabase-upgrade.sql once before the new multiplayer features work. For a brand-new project, run supabase-schema.sql first and then supabase-upgrade.sql.
 
-`live.html` bruker Supabase etter oppsett. Se [SUPABASE_SETUP.md](SUPABASE_SETUP.md). Flerspillerbetaen bør prøves med to telefoner før vennene inviteres.
+## Pages
 
-## Publisering med GitHub Pages
-
-1. Opprett et offentlig GitHub-repositorium.
-2. Last opp index.html til rotmappen.
-3. Gå til Settings → Pages. Velg Deploy from a branch, grenen main og mappen /(root), og trykk Save.
-4. GitHub viser nettadressen når siden er publisert.
+- index.html: redirects to the live game.
+- live.html: live multiplayer app.
+- demo.html: earlier visual prototype. Its player positions and game events are simulated and do not connect phones.
