@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#131a16">
+  <title>FunRun · spill med venner</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 18px; background: #131a16; color: #f0f5ef; font: 16px/1.45 system-ui, sans-serif; }
+    main { width: min(100%, 620px); margin: 0 auto; }
+    header, .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    header { margin: 0 0 18px; }
+    h1 { font-size: 25px; margin: 5px 0; }
+    h2 { font-size: 19px; }
+    .card { padding: 18px; margin: 12px 0; border: 1px solid #37463b; border-radius: 18px; background: #1d2821; }
+    .stack, form { display: grid; gap: 12px; }
+    label { display: grid; gap: 6px; }
+    input, select, button { width: 100%; min-height: 46px; padding: 10px 12px; border: 1px solid #405246; border-radius: 12px; background: #26332a; color: inherit; font: inherit; }
+    button { cursor: pointer; font-weight: 650; }
+    button.primary { border-color: #83d4a0; background: #83d4a0; color: #122018; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .small { width: auto; min-height: 38px; padding: 7px 11px; }
+    .muted, .note { color: #a6b4a9; }
+    .note { font-size: 13px; }
+    .code { font-size: 25px; font-weight: 750; letter-spacing: .12em; }
+    ul { padding-left: 22px; }
+    li { padding: 4px 0; }
+    #status { min-height: 1.5em; color: #f0ab73; }
+    #map { height: min(62vh, 560px); min-height: 330px; margin: -18px -18px 16px; background: #dfe8d6; border-radius: 18px 18px 0 0; }
+    #tag-confirm { border: 2px solid #f0ab73; }
+    [hidden] { display: none !important; }
+    #game-view { position: fixed; inset: 0; z-index: 50; width: 100vw; height: 100dvh; max-width: none; margin: 0; padding: 0; border: 0; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; background: #131a16; }
+    #game-view #map { flex: 1 1 auto; width: 100%; height: auto; min-height: 0; margin: 0; border-radius: 0; }
+    #game-view > .row { position: absolute; top: calc(env(safe-area-inset-top) + 12px); left: 12px; right: 12px; z-index: 2; pointer-events: none; }
+    #game-view > .row strong { padding: 8px 11px; border-radius: 12px; background: #142019e8; box-shadow: 0 2px 12px #0006; }
+    #game-view > .note { margin: 0; padding: 8px 12px 0; background: #131a16; }
+    #game-view > .stack { flex: 0 0 auto; max-height: 34dvh; overflow: auto; padding: 8px 12px calc(12px + env(safe-area-inset-bottom)); background: #131a16; }
+    @media (max-width: 480px) { body { padding: 8px; } .card { padding: 14px; } #map { margin: -14px -14px 14px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header><div><strong>↗ FunRun</strong><div class="muted">Spill sammen på nett</div></div><a href="./" style="color:#83d4a0">Til betaen</a></header>
+
+  <section class="card" id="auth-gate">
+    <p class="note" id="setup-note" hidden>Supabase må kobles til først. Legg prosjektets URL og Publishable key inn i supabase-config.js.</p>
+    <h1>Logg inn eller lag bruker</h1>
+    <p class="muted">Bruk en e-postadresse og et passord. Velg et visningsnavn vennene dine kjenner.</p>
+    <form id="auth-form">
+      <input id="auth-mode" type="hidden" value="login">
+      <label id="display-name-field" hidden>Visningsnavn<input id="display-name" maxlength="24" autocomplete="nickname" placeholder="Navnet vennene ser"></label>
+      <label>E-post<input id="email" type="email" required autocomplete="email" maxlength="254"></label>
+      <label>Passord<input id="password" type="password" required autocomplete="current-password" minlength="6"></label>
+      <button class="primary" id="auth-submit" type="submit">Logg inn</button>
+      <button id="toggle-auth" type="button">Lag en ny bruker</button>
+    </form>
+  </section>
+
+  <section id="app-view" hidden>
+    <div class="row card"><span>Hei, <strong id="signed-in-as"></strong></span><button class="small" id="sign-out" type="button">Logg ut</button></div>
+    <section class="card" id="home-view" hidden>
+      <h1>Spill med venner</h1>
+      <p class="muted">Lag en lobby og del koden, eller bli med i en lobby du kjenner.</p>
+      <div class="stack">
+        <button class="primary" id="create-room" type="button">Lag lobby</button>
+        <label>Lobbykode<input id="join-code" maxlength="8" autocomplete="off" placeholder="8 tegn, for eksempel 4A7C91EF"></label>
+        <button id="join-room" type="button">Bli med</button>
+      </div>
+    </section>
+    <section class="card" id="room-view" hidden>
+      <div class="row"><div><div class="muted">Lobbykode</div><div class="code" id="room-code"></div></div><button class="small" id="copy-code" type="button">Kopier kode</button></div>
+      <h2>Spillere</h2><ul id="player-list"></ul>
+      <div id="host-controls" class="stack">
+        <h2>Rundeoppsett</h2>
+        <label>Spilltype<select id="mode"><option value="tag">Sisten</option><option value="catch">Catch · tatt spiller er ute</option><option value="infection">Infection</option></select></label>
+        <label>Rundelengde, minutter<input id="minutes" type="number" min="1" max="120" value="30"></label>
+        <label>Hvor ofte jegeren ser kartposisjon<select id="reveal-every"><option value="0">Alltid</option><option value="1">Hvert minutt</option><option value="5" selected>Hvert 5. minutt</option><option value="10">Hvert 10. minutt</option><option value="15">Hvert 15. minutt</option><option value="20">Hvert 20. minutt</option><option value="25">Hvert 25. minutt</option><option value="30">Hvert 30. minutt</option><option value="35">Hvert 35. minutt</option><option value="40">Hvert 40. minutt</option><option value="45">Hvert 45. minutt</option><option value="50">Hvert 50. minutt</option><option value="55">Hvert 55. minutt</option><option value="60">Hvert 60. minutt</option></select></label>
+        <label>Hvor lenge kartet vises, sekunder<input id="reveal-seconds" type="number" min="1" max="120" step="1" value="15" inputmode="numeric"></label>
+        <button id="save-settings" type="button">Lagre oppsett</button>
+        <button class="primary" id="start-round" type="button" disabled>Start runden</button>
+        <p class="note">Minst to spillere må være i lobbyen. Bare verten starter runden.</p>
+      </div>
+      <button id="leave-room" type="button">Forlat lobby</button>
+    </section>
+    <section class="card" id="game-view" hidden>
+      <div id="map" aria-label="Kart over spilleområdet"></div>
+      <div class="row"><strong id="game-status"></strong><strong id="timer">30:00</strong></div>
+      <p class="note">GPS deles bare mens du spiller. Jegeren kan hente posisjonene i kartperiodene. Trykk Stopp GPS for å slutte å dele.</p>
+      <div class="stack">
+        <button id="gps-toggle" type="button">Start GPS</button>
+        <label id="tag-target-label">Hvem ble tatt?<select id="tag-target"></select></label>
+        <button class="primary" id="request-tag" type="button" hidden>Jeg har tatt noen</button>
+        <div class="card" id="tag-confirm" hidden><p id="tag-confirm-text"></p><button class="primary" id="tag-confirm-button" type="button">Jeg bekrefter</button></div>
+        <button id="back-home" type="button">Tilbake</button>
+      </div>
+    </section>
+  </section>
+  <p id="status" role="status" aria-live="polite"></p>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script type="module" src="./supabase-live.js"></script>
+</body>
+</html>

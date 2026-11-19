@@ -1,25 +1,22 @@
 # FunRun beta
 
-Dette er en spillbar nettleserbeta av FunRun. Bruk GitHub Pages-lenken (HTTPS) for GPS-funksjonen.
+Dette er en nettleserbeta av FunRun. `index.html` er den eksisterende demoen; `live.html` er flerspillerversjonen for kontoer, lobbyer og live-runder. Den bruker et eget Supabase-prosjekt.
 
 ## Hva betaen gjør
 
 - Lar deg lage en lobby, velge regler og sette opp et spilleområde.
-- Viser kartskisse, kontrollsoner, rundevisning og resultater.
+- Viser kart, kontrollsoner, rundevisning og resultater.
 - Lar deg prøve flyten i én nettleser med simulerte spillere.
-- Kan vise din egen GPS-posisjon på et OpenStreetMap-veikart i live-runden. Trykk «Start GPS» og gi nettleseren tilgang.
 
 ## Viktig
 
-- GPS-punktet vises bare på enheten du spiller på. Lobbykoder kobler ikke sammen ulike telefoner, og andre spilleres posisjoner deles ikke.
-- Posisjonen lagres ikke i appens tilstand eller sendes til en FunRun-server. OpenStreetMap mottar forespørsler om kartflisene for området kartet viser.
-- Området og kontrollsonene er fortsatt en skisse. GPS-grensevarsling og ekte posisjonsdeling mellom spillere er ikke ferdig.
-- Nettleseren må ha posisjonstilgang slått på. GPS virker bare på en sikker HTTPS-side.
+Den publiserte `index.html`-betaen er en prototype. Lobbykoder kobler ikke sammen ulike telefoner, og posisjoner i selve runden er simulert.
 
-## Kart
-
-Kartet bruker Leaflet og OpenStreetMap. © OpenStreetMap contributors. Les [OpenStreetMap Tile Usage Policy](https://operations.osmfoundation.org/policies/tiles/).
+`live.html` bruker Supabase etter oppsett. Se [SUPABASE_SETUP.md](SUPABASE_SETUP.md). Flerspillerbetaen bør prøves med to telefoner før vennene inviteres.
 
 ## Publisering med GitHub Pages
 
-Siden publiseres fra `index.html` i rotmappen på grenen `main`.
+1. Opprett et offentlig GitHub-repositorium.
+2. Last opp index.html til rotmappen.
+3. Gå til Settings → Pages. Velg Deploy from a branch, grenen main og mappen /(root), og trykk Save.
+4. GitHub viser nettadressen når siden er publisert.
