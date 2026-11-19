@@ -56,8 +56,14 @@
 
   <section class="card" id="auth-gate">
     <p class="note" id="setup-note" hidden>Supabase må kobles til først. Legg prosjektets URL og Publishable key inn i supabase-config.js.</p>
-    <h1>Logg inn eller lag bruker</h1>
-    <p class="muted">Velg e-post eller telefon. Med telefon får du en engangskode på SMS.</p>
+    <h1>Spill med venner</h1>
+    <p class="muted">Lag en gjestekonto med et navn, eller logg inn med e-post eller telefon.</p>
+    <form id="guest-form" class="stack">
+      <label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label>
+      <button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button>
+      <p class="note">Gjestekontoen lagres på denne enheten. Hvis du logger ut, bytter enhet eller sletter nettleserdata, kan du miste kontoen.</p>
+    </form>
+    <p class="note">Eller logg inn med e-post eller telefon.</p>
     <div class="auth-methods" role="tablist" aria-label="Velg innlogging">
       <button class="auth-method active" id="email-auth-tab" type="button" role="tab" aria-selected="true">E-post</button>
       <button class="auth-method" id="phone-auth-tab" type="button" role="tab" aria-selected="false">Telefon</button>

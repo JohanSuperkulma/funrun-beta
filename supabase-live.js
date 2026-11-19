@@ -419,6 +419,29 @@ if (!configured) {
       else setStatus("");
     } catch (error) { showError(error, "Koden stemmer ikke eller har gått ut. Be om en ny kode."); }
   });
+  $("#guest-form").addEventListener("submit", async event => {
+    event.preventDefault();
+    const name = $("#guest-display-name").value.trim();
+    if (name.length < 2) { setStatus("Skriv inn et visningsnavn på minst to tegn."); return; }
+    const button = $("#guest-submit");
+    button.disabled = true;
+    setStatus("Lager gjestekonto …");
+    try {
+      const { error } = await supabase.auth.signInAnonymously({
+        options: { data: { display_name: name.slice(0, 24) } }
+      });
+      if (error) throw error;
+      setStatus("");
+    } catch (error) {
+      if (error?.code === "anonymous_provider_disabled" || /anonymous.*disabled/i.test(error?.message || "")) {
+        setStatus("Gjestepålogging er ikke slått på i Supabase ennå.");
+      } else if (error?.status === 429 || /rate.?limit|too many requests/i.test(error?.message || "")) {
+        setStatus("Mange oppretter gjestekonto samtidig. Vent litt og prøv igjen.");
+      } else showError(error, "Kunne ikke starte som gjest. Prøv igjen.");
+    } finally {
+      button.disabled = false;
+    }
+  });
   $("#change-phone").addEventListener("click", () => {
     pendingPhone = "";
     pendingPhoneName = "";
