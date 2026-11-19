@@ -47,7 +47,7 @@ if (!configured) {
   };
   const showError = (error, fallback = "Noe gikk galt. Prøv igjen.") => {
     const message = String(error?.message || "");
-    if (/game_options|\bready\b|funrun_save_full_setup|funrun_packages|funrun_checkpoint_visits|funrun_set_ready|funrun_get_area_status|funrun_get_visible_positions|funrun_apply_zone_penalty|funrun_claim_package|funrun_claim_checkpoint/i.test(message)) {
+    if (/game_options|funrun_save_full_setup|funrun_packages|funrun_checkpoint_visits|funrun_get_area_status|funrun_get_visible_positions|funrun_apply_zone_penalty|funrun_claim_package|funrun_claim_checkpoint/i.test(message)) {
       $("#setup-note").hidden = false;
       setStatus("FunRun-databasen må oppdateres før alle funksjonene kan brukes.");
       return;
@@ -170,7 +170,7 @@ if (!configured) {
     const help = mapTool === "zone" ? "Trykk på kartet for å tegne spilleområdet. Minst tre punkter." :
       mapTool === "package" ? "Trykk på kartet for å plassere pakker. Maks 8." :
       mapTool === "checkpoint" ? "Trykk på kartet for å plassere kontrollpunkter." :
-      "Kartet er klart. Trykk på et verktøy for å tegne eller plassere markører.";
+      "Kartredigeringen er ferdig. Trykk på et verktøy for å tegne eller plassere markører.";
     $("#map-instructions").textContent = help;
   };
   const hydrateSettings = () => {
@@ -198,18 +198,15 @@ if (!configured) {
     $("#checkpoint-count").value = options.checkpointCount || 3;
     $("#checkpoint-order").value = options.checkpointOrder || "any";
     $("#checkpoint-settings").hidden = $("#mode").value !== "checkpoints";
-    $("#ready-check").checked = Boolean(currentMember()?.ready);
     renderMapSummary();
   };
   const renderPlayers = () => {
     $("#player-list").replaceChildren(...members.map(member => {
       const li = document.createElement("li");
       const label = document.createElement("span"); label.textContent = member.display_name + (member.user_id === room.host_id ? " · vert" : "");
-      const state = document.createElement("span"); state.className = "player-state"; state.textContent = member.ready ? "Klar" : "Ikke klar";
-      li.append(label,state); return li;
+      li.append(label); return li;
     }));
-    const hostReady = members.some(member => member.user_id === room.host_id && member.ready);
-    $("#start-round").textContent = members.length < 2 ? "Venter på minst én spiller til" : hostReady ? "Start runden" : "Verten må være klar først";
+    $("#start-round").textContent = members.length < 2 ? "Venter på minst én spiller til" : "Start runden";
   };
   const renderRoom = () => {
     if (!roomId || !room) return;
@@ -225,10 +222,9 @@ if (!configured) {
     }
     const checkpointCount = Number(gameOptions.checkpointCount || 0);
     $("#checkpoint-settings").hidden = $("#mode").value !== "checkpoints";
-    const hostReady = Boolean(currentMember()?.ready);
-    const zoneReady = gameOptions.zone?.length >= 3;
-    const checkpointsReady = $("#mode").value !== "checkpoints" || gameOptions.checkpoints.length >= checkpointCount;
-    $("#start-round").disabled = !isHost() || members.length < 2 || !hostReady || !zoneReady || !checkpointsReady;
+    const hasZone = gameOptions.zone?.length >= 3;
+    const checkpointsPlaced = $("#mode").value !== "checkpoints" || gameOptions.checkpoints.length >= checkpointCount;
+    $("#start-round").disabled = !isHost() || members.length < 2 || !hasZone || !checkpointsPlaced;
   };
   const positionOptions = () => room?.game_options || DEFAULT_OPTIONS;
   const addMarkerForPosition = (point, display) => {
@@ -365,7 +361,7 @@ if (!configured) {
     try{
       const results=await Promise.all([
         supabase.from("funrun_rooms").select("*").eq("id",roomId).maybeSingle(),
-        supabase.from("funrun_members").select("user_id,display_name,joined_at,ready").eq("room_id",roomId).order("joined_at"),
+        supabase.from("funrun_members").select("user_id,display_name,joined_at").eq("room_id",roomId).order("joined_at"),
         supabase.from("funrun_roles").select("user_id,role").eq("room_id",roomId),
         supabase.from("funrun_tag_requests").select("id,room_id,hunter_id,target_id,status,created_at").eq("room_id",roomId).order("created_at",{ascending:false}),
         supabase.from("funrun_packages").select("id,room_id,lat,lng,claimed_at,claimed_by,outcome").eq("room_id",roomId),
@@ -431,25 +427,16 @@ if (!configured) {
       if(!settings.options.packagesEnabled)settings.options.pendingPackages=[];
       const {error}=await supabase.rpc("funrun_save_full_setup",{p_room_id:roomId,p_mode:settings.mode,p_duration_minutes:settings.minutes,p_headstart_seconds:settings.headstart,p_reveal_every_minutes:settings.revealEvery,p_reveal_seconds:settings.revealSeconds,p_game_options:settings.options,p_packages:settings.options.pendingPackages});
       if(error)throw error;
-      settingsDirty=false;gameOptions.pendingPackages=[];setStatus("Oppsettet er lagret. Alle må lese reglene og trykke «klar» igjen.");await refreshRoom();
+      settingsDirty=false;gameOptions.pendingPackages=[];setStatus("Oppsettet er lagret.");await refreshRoom();
     }catch(error){showError(error,"Kunne ikke lagre oppsettet.");}
   };
   const startRound = async () => {
     if(!roomId||!isHost())return;
     try{await callRpc("funrun_start_round",{p_room_id:roomId});await refreshRoom();setStatus("Runden har startet! Trykk Start GPS for å dele posisjonen din.");}
     catch(error){
-      if(/alle må lese reglene/i.test(error?.message||"")){
-        $("#host-start-update").hidden=false;
-        setStatus("Supabase må få en liten oppdatering før verten kan starte alene. Følg SQL-lenken under startknappen.");
-      }else showError(error,"Kunne ikke starte runden.");
+      if(/Verten må lese reglene/i.test(error?.message||"")) setStatus("Kjør den oppdaterte SQL-filen i Supabase før du starter.");
+      else showError(error,"Kunne ikke starte runden.");
     }
-  };
-  const setReady = async ready => {
-    if(!roomId)return;
-    $("#ready-check").disabled=true;
-    try{await callRpc("funrun_set_ready",{p_room_id:roomId,p_ready:ready});await refreshRoom();}
-    catch(error){$("#ready-check").checked=!ready;showError(error,"Kunne ikke lagre at du er klar.");}
-    finally{$("#ready-check").disabled=false;}
   };
   const haversine = (a,b) => {
     const rad=n=>n*Math.PI/180,R=6371000,dLat=rad(b.lat-a.lat),dLng=rad(b.lng-a.lng);
@@ -678,7 +665,6 @@ if (!configured) {
     $("#"+id).addEventListener("input",()=>{settingsDirty=true;if(id==="checkpoint-count")gameOptions.checkpointCount=Math.min(10,Number($("#checkpoint-count").value)||1);renderMapSummary();});
     $("#"+id).addEventListener("change",()=>{settingsDirty=true;if(id==="checkpoint-count")gameOptions.checkpointCount=Math.min(10,Number($("#checkpoint-count").value)||1);renderMapSummary();});
   });
-  $("#ready-check").addEventListener("change",event=>setReady(event.target.checked));
   document.querySelectorAll("[data-map-tool]").forEach(button=>button.addEventListener("click",()=>{
     if(button.dataset.mapTool==="package"&&!$("#packages-enabled").checked){setStatus("Slå på pakker i rundeoppsettet først.");return;}
     if(button.dataset.mapTool==="checkpoint"&&$("#mode").value!=="checkpoints"){setStatus("Velg Kontrollpunkter som spilltype først.");return;}
@@ -686,7 +672,7 @@ if (!configured) {
   }));
   $("#undo-map-point").addEventListener("click",()=>{if(mapTool==="zone")gameOptions.zone.pop();else if(mapTool==="package")gameOptions.pendingPackages.pop();else if(mapTool==="checkpoint")gameOptions.checkpoints.pop();settingsDirty=true;renderSetupMap();renderMapSummary();});
   $("#clear-map-points").addEventListener("click",()=>{if(mapTool==="zone")gameOptions.zone=[];else if(mapTool==="package")gameOptions.pendingPackages=[];else if(mapTool==="checkpoint")gameOptions.checkpoints=[];else setStatus("Velg først område, pakker eller kontrollpunkter.");settingsDirty=true;renderSetupMap();renderMapSummary();});
-  $("#finish-map-edit").addEventListener("click",()=>{mapTool=null;document.querySelectorAll("[data-map-tool]").forEach(button=>button.classList.remove("selected"));$("#map-instructions").textContent="Kartet er klart. Trykk på et verktøy for å tegne eller plassere markører.";renderSetupMap();renderMapSummary();});
+  $("#finish-map-edit").addEventListener("click",()=>{mapTool=null;document.querySelectorAll("[data-map-tool]").forEach(button=>button.classList.remove("selected"));$("#map-instructions").textContent="Kartredigeringen er ferdig. Trykk på et verktøy for å tegne eller plassere markører.";renderSetupMap();renderMapSummary();});
   $("#search-place").addEventListener("click",searchPlaces);
   $("#place-search").addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();searchPlaces();}});
   $("#gps-toggle").addEventListener("click",()=>gpsWatch===null?startGps():stopGps());
