@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://johansuperkulma.github.io/funrun-beta/sitemap.xml
