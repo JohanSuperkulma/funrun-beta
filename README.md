@@ -1,5 +1,7 @@
 # FunRun
 
+FunRun kan installeres fra nettleseren på mobilen via «Legg til på Hjem-skjerm» eller «Installer app».
+
 FunRun is a mobile-first web app for GPS-based tag games. The main page opens the live multiplayer version at live.html. It uses Supabase for accounts, lobbies, settings, tag confirmation, package collection, checkpoint progress, and location sharing.
 
 ## Current play features

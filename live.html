@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111a15">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FunRun">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./funrun-icon-192.png">
   <meta name="description" content="FunRun – lag lobby, velg spilleområde og spill GPS-sisten med venner.">
   <link rel="canonical" href="https://johansuperkulma.github.io/funrun-beta/">
   <meta property="og:title" content="FunRun – spill med venner">
@@ -85,6 +91,7 @@
   <section class="card" id="auth-gate">
     <h1>Spill med venner</h1>
     <p class="muted">Lag en gjestekonto på telefonen din, eller bruk e-post.</p>
+    <p class="note">Legg på hjemskjermen: Android — Chrome-menyen ⋮ → Installer app. iPhone — Safari → Del → Legg til på Hjem-skjerm.</p>
     <form id="guest-form"><label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label><button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button><p class="note">Gjestekontoen hører til denne enheten. Ikke logg ut eller slett nettleserdata hvis du vil beholde den.</p></form>
     <p class="note">Eller bruk e-post.</p>
     <div class="auth-methods" role="tablist" aria-label="Velg innlogging">
@@ -204,7 +211,12 @@
   </div>
 </section>
 
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
+  }
+</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="./supabase-live.js?v=10"></script>
+<script type="module" src="./supabase-live.js?v=11"></script>
 </body>
 </html>
