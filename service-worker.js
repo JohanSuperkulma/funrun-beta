@@ -1,9 +1,9 @@
-const CACHE_NAME = "funrun-pwa-v11";
+const CACHE_NAME = "funrun-pwa-v12";
 const PRECACHE = [
   "./",
   "./index.html",
-  "./live.html?v=11",
-  "./supabase-live.js?v=11",
+  "./live.html?v=12",
+  "./supabase-live.js?v=12",
   "./supabase-config.js",
   "./manifest.webmanifest",
   "./offline.html",

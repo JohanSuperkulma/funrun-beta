@@ -16,7 +16,9 @@ For et helt nytt Supabase-prosjekt må du først kjøre supabase-schema.sql og d
 
 ## 3. Innlogging
 
-E-postinnlogging må være aktivert under Authentication → Sign In / Providers. E-postbekreftelse krever at SMTP er konfigurert.
+FunRun bruker passordfri e-postlenke. Spilleren skriver inn e-postadressen, åpner e-posten på samme telefon og trykker på lenken for å logge inn. Hvis adressen ikke har konto fra før, Supabase lager en ny bruker.
+
+SMTP må være konfigurert. For at lenken i e-posten skal hete «Det er meg», åpne Authentication → Emails → Magic Link og lim inn innholdet fra [supabase-magic-link-template.html](https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-magic-link-template.html). Behold `{{ .ConfirmationURL }}` i lenken.
 
 For telefoninnlogging må Phone provider kobles til en SMS-tjeneste. SMS kan koste penger. Ikke legg SMS-hemmeligheter i nettsiden eller del dem i chatten.
 

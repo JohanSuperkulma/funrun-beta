@@ -3,7 +3,7 @@
   "name": "FunRun – spill sammen ute",
   "short_name": "FunRun",
   "description": "GPS-sisten med venner.",
-  "start_url": "./live.html?v=11",
+  "start_url": "./live.html?v=12",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

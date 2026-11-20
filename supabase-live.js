@@ -612,20 +612,18 @@ if (!configured) {
     finally{button.disabled=false;}
   });
   $("#auth-form").addEventListener("submit",async event=>{
-    event.preventDefault();setStatus("Logger inn …");const email=$("#email").value.trim(),password=$("#password").value;
+    event.preventDefault();
+    const email=$("#email").value.trim();
+    const name=$("#display-name").value.trim();
+    if(!email){setStatus("Skriv inn e-postadressen din.");return;}
+    setStatus("Sender innloggingslenke …");
     try{
-      if($("#auth-mode").value==="create"){
-        const name=$("#display-name").value.trim();if(name.length<2)throw new Error("Skriv inn et visningsnavn på minst to tegn.");
-        const {data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:name.slice(0,24)},emailRedirectTo:location.origin+location.pathname}});
-        if(error)throw error;if(!data.session)setStatus("Sjekk e-posten din og trykk på bekreftelseslenken før du logger inn.");else setStatus("");
-      }else{const {error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;setStatus("");}
-    }catch(error){showError(error,"Kunne ikke logge inn. Sjekk e-post og passord.");}
-  });
-  $("#toggle-auth").addEventListener("click",()=>{
-    const create=$("#auth-mode").value!=="create";$("#auth-mode").value=create?"create":"login";
-    $("#display-name-field").hidden=!create;$("#auth-submit").textContent=create?"Lag bruker":"Logg inn";
-    $("#toggle-auth").textContent=create?"Jeg har allerede en bruker":"Lag en ny bruker";
-    $("#password").autocomplete=create?"new-password":"current-password";
+      const options={emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true};
+      if(name.length>=2)options.data={display_name:name.slice(0,24)};
+      const {error}=await supabase.auth.signInWithOtp({email,options});
+      if(error)throw error;
+      setStatus("E-post sendt. Åpne den på telefonen og i nettleseren du bruker til FunRun. Trykk «Det er meg» for å logge inn.");
+    }catch(error){showError(error,"Kunne ikke sende e-postlenken. Kontroller e-postadressen.");}
   });
   const selectAuthMethod = method => {
     const emailSelected=method==="email";

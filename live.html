@@ -99,12 +99,10 @@
       <button id="phone-auth-tab" type="button" role="tab" aria-selected="false">Telefon</button>
     </div>
     <form id="auth-form">
-      <input id="auth-mode" type="hidden" value="login">
-      <label id="display-name-field" hidden>Visningsnavn<input id="display-name" maxlength="24" minlength="2" autocomplete="nickname"></label>
       <label>E-post<input id="email" type="email" autocomplete="email" maxlength="254" required></label>
-      <label>Passord<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
-      <button class="primary" id="auth-submit" type="submit">Logg inn</button>
-      <button class="ghost" id="toggle-auth" type="button">Lag en ny bruker</button>
+      <label>Visningsnavn for ny bruker (valgfritt)<input id="display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser"></label>
+      <p class="note">Vi sender en lenke. Åpne e-posten på telefonen du spiller på, og trykk «Det er meg».</p>
+      <button class="primary" id="auth-submit" type="submit">Send e-postlenke</button>
     </form>
     <section id="phone-auth-panel" hidden>
       <form id="phone-form">
@@ -217,6 +215,6 @@
   }
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="./supabase-live.js?v=11"></script>
+<script type="module" src="./supabase-live.js?v=12"></script>
 </body>
 </html>
