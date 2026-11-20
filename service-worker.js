@@ -1,9 +1,11 @@
-const CACHE_NAME = "funrun-pwa-v12";
+const CACHE_NAME = "funrun-pwa-v13";
 const PRECACHE = [
   "./",
   "./index.html",
-  "./live.html?v=12",
-  "./supabase-live.js?v=12",
+  "./live.html?v=13",
+  "./supabase-live.js?v=13",
+  "./satellite-maps.js?v=13",
+  "./package-flow.js?v=13",
   "./supabase-config.js",
   "./manifest.webmanifest",
   "./offline.html",
@@ -33,14 +35,21 @@ self.addEventListener("fetch", event => {
   const url = new URL(request.url);
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Never cache authentication, database, or live-game endpoints.
   const path = url.pathname;
   if (path.includes("/auth/v1/") || path.includes("/rest/v1/") || path.includes("/functions/v1/")) return;
 
   if (request.mode === "navigate") {
     event.respondWith((async () => {
       try {
-        return await fetch(request);
+        const response = await fetch(request);
+        if (url.pathname.endsWith("/live.html") && response.ok) {
+          let html = await response.text();
+          const leafletScript = '  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>';
+          const injected = '  <script src="./satellite-maps.js?v=13"></script>\n  <script src="./package-flow.js?v=13"></script>\n' + leafletScript;
+          if (html.includes(leafletScript)) html = html.replace(leafletScript, injected);
+          return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
+        }
+        return response;
       } catch {
         return await caches.match(new URL("./offline.html", self.registration.scope).href) || Response.error();
       }
