@@ -72,7 +72,7 @@
     .game-map { position:absolute; inset:0 0 168px; background:#dfe8df; }
     .game-top { position:absolute; z-index:5; top:calc(env(safe-area-inset-top) + 10px); left:10px; right:10px; display:flex; justify-content:space-between; gap:8px; pointer-events:none; }
     .game-pill { max-width:68%; padding:8px 11px; border:1px solid #ffffff38; border-radius:12px; background:#111a15e8; box-shadow:0 2px 10px #0005; font-weight:750; }
-    .game-bottom { position:absolute; z-index:5; left:0; right:0; bottom:0; max-height:48dvh; overflow:auto; padding:9px 12px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(#111a15f5,#111a15 20%); }
+    .game-bottom { position:absolute; z-index:5; left:0; right:0; bottom:0; max-height:48dvh; overflow:auto; padding:9px 12px calc(12px + env(safe-area-inset-bottom)); background:linear-gradient(#111a15ef,#111a15); }
     .game-bottom .row { align-items:stretch; }
     .game-bottom .row > * { flex:1; }
     .gps-status { padding:8px 10px; border-radius:10px; background:#1b2820; font-size:13px; }
@@ -82,7 +82,7 @@
     .toast { margin:7px 0; padding:9px 11px; border:1px solid #6e925f; border-radius:10px; background:#1b3825; }
     .leaflet-tooltip { color:#fff; background:#152019; border-color:#152019; }
     .leaflet-tooltip-top:before { border-top-color:#152019; }
-    @media(max-width:520px) { body { padding-left:8px; padding-right:8px; } .card { padding:13px; } .grid2 { grid-template-columns:1fr; } .map-box { height:42vh; min-height:260px; } .game-map { bottom:190px; } .game-bottom { max-height:54dvh; } .game-pill { max-width:72%; font-size:14px; } }
+    @media(max-width:520px) { body { padding-left:8px; padding-right:8px; } .card { padding:13px; } .grid2 { grid-template-columns:1fr; } .map-box { height:42vh; min-height:260px; } .game-map { bottom:168px; } }
   </style>
 </head>
 <body>
@@ -92,7 +92,7 @@
     <h1>Spill med venner</h1>
     <p class="muted">Lag en gjestekonto på telefonen din, eller bruk e-post.</p>
     <p class="note">Legg på hjemskjermen: Android — Chrome-menyen ⋮ → Installer app. iPhone — Safari → Del → Legg til på Hjem-skjerm.</p>
-    <form id="guest-form"><label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label><button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button><p class="note">Gjestekontoen hører til denne enheten. Ikke logg ut eller slett nettleserdata hvis du vil beholde den.</p></form>
+    <form id="guest-form"><label>Visningsnavn<input id="guest-display-name" maxlength="24" minlength="2" autocomplete="nickname" placeholder="Navnet vennene ser" required></label><button class="primary" id="guest-submit" type="submit">Fortsett som gjest</button></form>
     <p class="note">Eller bruk e-post.</p>
     <div class="auth-methods" role="tablist" aria-label="Velg innlogging">
       <button class="active" id="email-auth-tab" type="button" role="tab" aria-selected="true">E-post</button>
@@ -119,12 +119,12 @@
       </form>
     </section>
   </section>
-  <p class="note" id="setup-note" hidden>FunRun trenger en databaseoppdatering før nye lobbyer, pakker og GPS-kart kan virke. Åpne Supabase → SQL Editor, lim inn innholdet i <a href="https://raw.githubusercontent.com/JohanSuperkulma/funrun-beta/main/supabase-upgrade.sql" target="_blank" rel="noopener">denne SQL-filen</a>, og trykk Run én gang.</p>
+  <p class="note" id="setup-note" hidden>FunRun trenger en databaseoppdatering før nye lobbyer, pakker og GPS-kart kan virke. Åpne Supabase → SQL Editor, lim inn innholdet i <a href="./supabase-schema.sql">supabase-schema.sql</a> og kjøro det.</p>
   <section id="app-view" hidden>
     <div class="row card"><span>Hei, <strong id="signed-in-as"></strong></span><button class="ghost" id="sign-out" type="button" style="width:auto">Logg ut</button></div>
     <section class="card" id="home-view" hidden>
       <h1>Lobby</h1><p class="muted">Lag en lobby og del koden med vennene dine.</p>
-      <div class="stack"><button class="primary" id="create-room" type="button">Lag lobby</button><label>Bli med med kode<input id="join-code" maxlength="8" autocomplete="off" placeholder="8 tegn"></label><button id="join-room" type="button">Bli med</button></div>
+      <div class="stack"><button class="primary" id="create-room" type="button">Lag lobby</button><label>Bli med med kode<input id="join-code" maxlength="8" autocomplete="off" placeholder="8 tegn, for eksempel A12BC3D4"></label><button id="join-room" type="button">Bli med i lobby</button></div>
     </section>
     <section class="card" id="room-view" hidden>
       <div class="row"><div><div class="muted">Lobbykode</div><div class="code" id="room-code"></div></div><button id="copy-code" type="button" style="width:auto">Kopier kode</button></div>
@@ -144,10 +144,10 @@
           </div>
           <label style="margin-top:8px">Hvor lenge posisjonene vises, sekunder<input id="reveal-seconds" type="number" min="1" max="120" step="1" value="15"></label>
           <div class="grid2" style="margin-top:9px">
-            <label>Hva jegeren ser<select id="position-display"><option value="names">Navn og posisjon</option><option value="dots">Bare prikker</option><option value="area">Bare at de er i sonen</option></select></label>
+            <label>Hva jegeren ser<select id="position-display"><option value="names">Navn og posisjon</option><option value="dots">Bare prikker</option></select></label>
             <label>Posisjonsnøyaktighet<select id="position-precision"><option value="approx">Omtrent</option><option value="exact">Nøyaktig</option></select></label>
           </div>
-          <label style="margin-top:8px">Hvis noen er utenfor sonen i 10 sekunder<select id="outside-rule"><option value="out">Spilleren blir ute</option><option value="hunter">Spilleren blir jeger</option></select></label>
+          <label style="margin-top:8px">Hvis noen er utenfor sonen i 10 sekunder<select id="outside-rule"><option value="out">Spilleren blir ute</option><option value="hunter">Spilleren blir jeger</option><option value="penalty">Gi 60 sekunders bot</option></select></label>
           <div class="switch" style="margin-top:12px"><input id="packages-enabled" type="checkbox"><label for="packages-enabled">Bruk pakker med fordeler og ulemper</label></div>
           <div id="checkpoint-settings" class="grid2" hidden style="margin-top:9px">
             <label>Antall kontrollpunkter (maks 10)<input id="checkpoint-count" type="number" min="1" max="10" value="3"></label>
@@ -215,6 +215,6 @@
   }
 </script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script type="module" src="./supabase-live.js?v=12"></script>
+<script type="module" src="./supabase-live.js?v=16"></script>
 </body>
 </html>
