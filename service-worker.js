@@ -1,12 +1,12 @@
-const CACHE_NAME = "funrun-pwa-v15";
+const CACHE_NAME = "funrun-pwa-v16";
 const PRECACHE = [
   "./",
   "./index.html",
-  "./live.html?v=15",
-  "./supabase-live.js?v=15",
-  "./satellite-maps.js?v=15",
-  "./package-flow.js?v=15",
-  "./game-ui.js?v=15",
+  "./live.html?v=16",
+  "./supabase-live.js?v=16",
+  "./satellite-maps.js?v=16",
+  "./package-flow.js?v=16",
+  "./game-ui.js?v=16",
   "./supabase-config.js",
   "./manifest.webmanifest",
   "./offline.html",
@@ -46,7 +46,7 @@ self.addEventListener("fetch", event => {
         if (url.pathname.endsWith("/live.html") && response.ok) {
           let html = await response.text();
           const leafletScript = '  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>';
-          const injected = '  <script src="./satellite-maps.js?v=15"></script>\n  <script src="./package-flow.js?v=15"></script>\n  <script src="./game-ui.js?v=15"></script>\n' + leafletScript;
+          const injected = '  <script src="./satellite-maps.js?v=16"></script>\n  <script src="./package-flow.js?v=16"></script>\n  <script src="./game-ui.js?v=16"></script>\n' + leafletScript;
           if (html.includes(leafletScript)) html = html.replace(leafletScript, injected);
           return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
         }
@@ -62,7 +62,18 @@ self.addEventListener("fetch", event => {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
       try {
-        const response = await fetch(request);
+        let response = await fetch(request);
+        if (response.ok && url.pathname.endsWith("/supabase-live.js")) {
+          const source = await response.text();
+          const fixedSource = source.replace("event.preventEvent;", "event.preventDefault();");
+          if (fixedSource !== source) {
+            response = new Response(fixedSource, {
+              status: response.status,
+              statusText: response.statusText,
+              headers: response.headers
+            });
+          }
+        }
         if (response.ok) await cache.put(request, response.clone());
         return response;
       } catch {
