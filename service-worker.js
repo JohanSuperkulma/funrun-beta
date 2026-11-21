@@ -1,12 +1,13 @@
-const CACHE_NAME = "funrun-pwa-v16";
+const CACHE_NAME = "funrun-pwa-v18";
 const PRECACHE = [
   "./",
   "./index.html",
-  "./live.html?v=16",
-  "./supabase-live.js?v=16",
-  "./satellite-maps.js?v=16",
-  "./package-flow.js?v=16",
-  "./game-ui.js?v=16",
+  "./live.html?v=18",
+  "./supabase-live.js?v=18",
+  "./auth-form-state.js?v=18",
+  "./satellite-maps.js?v=18",
+  "./package-flow.js?v=18",
+  "./game-ui.js?v=18",
   "./supabase-config.js",
   "./manifest.webmanifest",
   "./offline.html",
@@ -45,8 +46,9 @@ self.addEventListener("fetch", event => {
         const response = await fetch(request);
         if (url.pathname.endsWith("/live.html") && response.ok) {
           let html = await response.text();
+          html = html.replace("./supabase-live.js?v=17", "./supabase-live.js?v=18");
           const leafletScript = '  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>';
-          const injected = '  <script src="./satellite-maps.js?v=16"></script>\n  <script src="./package-flow.js?v=16"></script>\n  <script src="./game-ui.js?v=16"></script>\n' + leafletScript;
+          const injected = '  <script src="./auth-form-state.js?v=18"></script>\n  <script src="./satellite-maps.js?v=18"></script>\n  <script src="./package-flow.js?v=18"></script>\n  <script src="./game-ui.js?v=18"></script>\n' + leafletScript;
           if (html.includes(leafletScript)) html = html.replace(leafletScript, injected);
           return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
         }
