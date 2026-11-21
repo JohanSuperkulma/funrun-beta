@@ -1,19 +1,19 @@
 (() => {
   let allowOneClaim = false;
   let claimTimer = null;
-  let wheelTimer = null;
   let overlay = null;
   let resultTitle = null;
   let resultEffect = null;
   let userPoint = null;
   const packagePoints = new Map();
-  const packageRpc = url => /\/rest\/v1\/rpc\/funrun_claim_package(?:\?|$)/.test(url);
+  const isPackageRpc = url => /\/rest\/v1\/rpc\/funrun_claim_package(?:\?|$)/.test(url);
 
   const ensureOverlay = () => {
     if (overlay) return;
     const style = document.createElement("style");
     style.textContent = `
-      .funrun-package-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px;background:#07100eeF;color:#fff;font:600 18px/1.45 system-ui,sans-serif;text-align:center}
+      .funrun-package-overlay{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:20px;background:#07100eef;color:#fff;font:600 18px/1.45 system-ui,sans-serif;text-align:center}
+      .funrun-package-overlay[hidden]{display:none}
       .funrun-package-card{position:relative;width:min(100%,390px);padding:30px 22px;border:1px solid #8be1a8;border-radius:22px;background:#17251c;box-shadow:0 12px 50px #0009;overflow:hidden}
       .funrun-package-burst{height:110px;display:grid;place-items:center;font-size:58px;animation:funrun-burst .85s ease-out both}
       .funrun-package-burst:after{content:'✦  ✧  ✦';position:absolute;top:66px;color:#ffd66b;font-size:25px;letter-spacing:16px;animation:funrun-spark .85s ease-out both}
@@ -42,11 +42,10 @@
     resultTitle.className = "funrun-package-title";
     resultEffect.textContent = "";
     overlay.querySelector("button").hidden = true;
-    clearInterval(wheelTimer);
     clearTimeout(claimTimer);
     claimTimer = setTimeout(() => {
-      if (overlay && !overlay.hidden && overlay.querySelector("button").hidden) {
-        resultTitle.textContent = "Prøver å åpne pakken";
+      if (!overlay.hidden && overlay.querySelector("button").hidden) {
+        resultTitle.textContent = "Kom nærmere pakken";
         resultEffect.textContent = "Stå innenfor den lysende 10-meterssirkelen og prøv igjen.";
         overlay.querySelector("button").hidden = false;
       }
@@ -64,7 +63,7 @@
     const button = document.querySelector("#open-package");
     if (!button) return;
     const packages = packagePoints.get("game-map") || [];
-    const nearby = userPoint && packages.some(point => metersBetween(userPoint, point) <= 10);
+    const nearby = Boolean(userPoint && packages.some(point => metersBetween(userPoint, point) <= 10));
     button.hidden = !nearby;
     if (nearby) button.textContent = "Åpne pakke";
   };
@@ -72,32 +71,30 @@
   const nativeFetch = window.fetch.bind(window);
   window.fetch = async (input, init) => {
     const url = typeof input === "string" ? input : input?.url || "";
-    if (packageRpc(url)) {
+    if (isPackageRpc(url)) {
       if (!allowOneClaim) {
-        return new Response(JSON.stringify({ code: "FUNRUN_PACKAGE_MANUAL", message: "Gå nærmere pakken. Du må være innenfor 10 meter." }), {
+        // The app also checks packages automatically at a wider radius. Ignore those attempts quietly.
+        return new Response(JSON.stringify({ code: "FUNRUN_PACKAGE_MANUAL", message: "Ikke nær nok til pakken." }), {
           status: 400, headers: { "Content-Type": "application/json" }
         });
       }
       allowOneClaim = false;
       const response = await nativeFetch(input, init);
       clearTimeout(claimTimer);
+      const payload = await response.clone().json().catch(() => ({}));
       if (!response.ok) {
-        const payload = await response.clone().json().catch(() => ({}));
-        if (resultTitle) resultTitle.textContent = payload.message || "Kunne ikke åpne pakken";
-        if (resultEffect) resultEffect.textContent = "Gå nærmere pakken, og prøv igjen.";
-        if (overlay) overlay.querySelector("button").hidden = false;
+        resultTitle.textContent = payload.message || "Kunne ikke åpne pakken";
+        resultEffect.textContent = "Gå nærmere pakken, og prøv igjen.";
+        overlay.querySelector("button").hidden = false;
         return response;
       }
-      const payload = await response.clone().json().catch(() => ({}));
       await new Promise(resolve => setTimeout(resolve, 850));
       const outcome = String(payload.level || payload.outcome || "Fordel");
       const disadvantage = /ulempe|disadvantage/i.test(outcome);
-      if (resultTitle) {
-        resultTitle.textContent = disadvantage ? "ULEMPE" : "FORDEL";
-        resultTitle.className = "funrun-package-title " + (disadvantage ? "bad" : "good");
-      }
-      if (resultEffect) resultEffect.textContent = payload.effect || "Pakken er åpnet!";
-      if (overlay) overlay.querySelector("button").hidden = false;
+      resultTitle.textContent = disadvantage ? "ULEMPE" : "FORDEL";
+      resultTitle.className = "funrun-package-title " + (disadvantage ? "bad" : "good");
+      resultEffect.textContent = payload.effect || "Pakken er åpnet!";
+      overlay.querySelector("button").hidden = false;
       return response;
     }
     return nativeFetch(input, init);
@@ -112,6 +109,9 @@
   const waitForLeaflet = () => {
     if (!window.L) { setTimeout(waitForLeaflet, 30); return; }
     const L = window.L;
+    if (L.__funrunPackageHooked) return;
+    L.__funrunPackageHooked = true;
+
     const originalMarker = L.marker;
     L.marker = function(latlng, options) {
       const marker = originalMarker.call(L, latlng, options);
@@ -156,10 +156,15 @@
       const originalTooltip = marker.bindTooltip.bind(marker);
       marker.bindTooltip = (content, tooltipOptions) => {
         if (content === "Du") {
-          const point = value => ({ lat: Number(value.lat ?? value[0]), lng: Number(value.lng ?? value[1]) });
-          userPoint = point(marker.getLatLng());
+          const toPoint = value => ({ lat: Number(value.lat ?? value[0]), lng: Number(value.lng ?? value[1]) });
+          userPoint = toPoint(marker.getLatLng());
           const originalSetLatLng = marker.setLatLng.bind(marker);
-          marker.setLatLng = value => { const result = originalSetLatLng(value); userPoint = point(value); refreshOpenButton(); return result; };
+          marker.setLatLng = value => {
+            const result = originalSetLatLng(value);
+            userPoint = toPoint(value);
+            refreshOpenButton();
+            return result;
+          };
           refreshOpenButton();
         }
         return originalTooltip(content, tooltipOptions);

@@ -1,12 +1,12 @@
-const CACHE_NAME = "funrun-pwa-v14";
+const CACHE_NAME = "funrun-pwa-v15";
 const PRECACHE = [
   "./",
   "./index.html",
-  "./live.html?v=14",
-  "./supabase-live.js?v=14",
-  "./satellite-maps.js?v=14",
-  "./package-flow.js?v=14",
-  "./game-ui.js?v=14",
+  "./live.html?v=15",
+  "./supabase-live.js?v=15",
+  "./satellite-maps.js?v=15",
+  "./package-flow.js?v=15",
+  "./game-ui.js?v=15",
   "./supabase-config.js",
   "./manifest.webmanifest",
   "./offline.html",
@@ -46,7 +46,7 @@ self.addEventListener("fetch", event => {
         if (url.pathname.endsWith("/live.html") && response.ok) {
           let html = await response.text();
           const leafletScript = '  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>';
-          const injected = '  <script src="./satellite-maps.js?v=14"></script>\n  <script src="./package-flow.js?v=14"></script>\n  <script src="./game-ui.js?v=14"></script>\n' + leafletScript;
+          const injected = '  <script src="./satellite-maps.js?v=15"></script>\n  <script src="./package-flow.js?v=15"></script>\n  <script src="./game-ui.js?v=15"></script>\n' + leafletScript;
           if (html.includes(leafletScript)) html = html.replace(leafletScript, injected);
           return new Response(html, { status: response.status, statusText: response.statusText, headers: response.headers });
         }
